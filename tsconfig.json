@@ -1,17 +1,29 @@
 {
+  "include": ["src", "test"],
   "compilerOptions": {
-    "module": "commonjs",
+    "target": "es2018",
+    "module": "esnext",
+    "importHelpers": true,
+    "declaration": true,
+    "sourceMap": true,
+    "rootDir": "./src",
+    "strict": true,
     "noImplicitAny": true,
-    "outFile": "./build/tsc.js",
-    "preserveConstEnums": true,
-    "sourceMap": true
-  },
-  "include": [
-    "lib/**/*",
-    "./node_modules/web3-typescript-typings/index.d.ts",
-  ],
-  "typeRoots" : [
-    "node_modules/@types",
-    "node_modules/web3-typescript-typings"
-  ]
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "paths": {
+      "*": ["src/*", "node_modules/*"]
+    },
+    "esModuleInterop": true,
+    "resolveJsonModule": true
+  }
 }

@@ -18,15 +18,19 @@
     "test": "./scripts/test.sh",
     "migrate": "./scripts/migrate.sh",
     "coverage": "./scripts/coverage.sh",
-    "start": "pm2 start truffle -- serve",
     "lint": "eslint .",
     "lint --fix": "eslint --fix .",
     "solhint": "solhint contracts/**/*.sol",
-    "truffle": "truffle",
-    "build": "rimraf build && truffle compile"
+    "build": "rimraf build && truffle compile",
+    "lint-lib": "tsdx lint src test",
+    "build-lib": "rm -rf dist && tsdx build",
+    "start-lib": "tsdx watch",
+    "test-lib": "tsdx test src/**.test.ts"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.1",
+    "@types/mocha": "^8.0.0",
+    "@types/node": "^14.0.25",
     "babel-eslint": "^10.1.0",
     "bignumber.js": "^5.0.0",
     "cross-conf-env": "^1.1.2",
