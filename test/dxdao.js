@@ -1,4 +1,4 @@
-import * as helpers from "./helpers";
+const helpers = require("./helpers");
 const constants = require("./helpers/constants");
 const WalletScheme = artifacts.require("./WalletScheme.sol");
 const DxController = artifacts.require("./DxController.sol");

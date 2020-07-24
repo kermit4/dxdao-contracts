@@ -1,9 +1,4 @@
-const HDWalletProvider = require('truffle-hdwallet-provider')	
-require("babel-polyfill");
-require("babel-register")({
-  "presets": [ "es2015" ],
-  "plugins": [ "syntax-async-functions", "transform-regenerator" ]
-});
+const HDWalletProvider = require('truffle-hdwallet-provider');
 require('dotenv').config();
 
 mnemonic = process.env.KEY_MNEMONIC;

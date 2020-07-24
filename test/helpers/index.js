@@ -15,7 +15,7 @@ const { encodePermission, decodePermission } = require("./permissions");
 const { encodeGenericCallData } = require("./walletScheme");
 const EthDecoder = require("@maticnetwork/eth-decoder")
 
-export const logDecoder = new EthDecoder.default.LogDecoder(
+const logDecoder = new EthDecoder.default.LogDecoder(
   [
     Avatar.abi,
     Controller.abi,
@@ -27,7 +27,7 @@ export const logDecoder = new EthDecoder.default.LogDecoder(
   ]
 );
 
-export const txDecoder = new EthDecoder.default.TxDecoder(
+const txDecoder = new EthDecoder.default.TxDecoder(
   [
     Avatar.abi,
     Controller.abi,
@@ -39,14 +39,14 @@ export const txDecoder = new EthDecoder.default.TxDecoder(
   ]
 );
 
-export const MAX_UINT_256 = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
-export const NULL_HASH = "0x0000000000000000000000000000000000000000000000000000000000000000";
-export const SOME_HASH = "0x1000000000000000000000000000000000000000000000000000000000000000";
-export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
-export const SOME_ADDRESS = "0x1000000000000000000000000000000000000000";
+const MAX_UINT_256 = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+const NULL_HASH = "0x0000000000000000000000000000000000000000000000000000000000000000";
+const SOME_HASH = "0x1000000000000000000000000000000000000000000000000000000000000000";
+const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
+const SOME_ADDRESS = "0x1000000000000000000000000000000000000000";
 
 
-export function getProposalAddress(tx) {
+const getProposalAddress = function(tx) {
   // helper function that returns a proposal object from the ProposalCreated event
   // in the logs of tx
   assert.equal(tx.logs[ 0 ].event, "ProposalCreated");
@@ -54,7 +54,7 @@ export function getProposalAddress(tx) {
   return proposalAddress;
 }
 
-export function getValueFromLogs(tx, arg, eventName, index = 0) {
+const getValueFromLogs = function(tx, arg, eventName, index = 0) {
   /**
    *
    * tx.logs look like this:
@@ -97,20 +97,20 @@ export function getValueFromLogs(tx, arg, eventName, index = 0) {
   return result;
 }
 
-export async function getProposal(tx) {
+const getProposal = async function(tx) {
   return await Proposal.at(getProposalAddress(tx));
 }
 
-export async function etherForEveryone(accounts) {
+const etherForEveryone = async function(accounts) {
   // give all web3.eth.accounts some ether
   for (let i = 0; i < 10; i++) {
     await web3.eth.sendTransaction({to: accounts[ i ], from: accounts[ 0 ], value: web3.utils.toWei("0.1", "ether")});
   }
 }
 
-export const outOfGasMessage = "VM Exception while processing transaction: out of gas";
+const outOfGasMessage = "VM Exception while processing transaction: out of gas";
 
-export function assertJumpOrOutOfGas(error) {
+const assertJumpOrOutOfGas = function(error) {
   let condition = (
     error.message === outOfGasMessage ||
         error.message.search("invalid JUMP") > -1
@@ -118,25 +118,25 @@ export function assertJumpOrOutOfGas(error) {
   assert.isTrue(condition, "Expected an out-of-gas error or an invalid JUMP error, got this instead: " + error.message);
 }
 
-export function assertVMException(error) {
+const assertVMException = function(error) {
   let condition = (
     error.message.search("VM Exception") > -1
   );
   assert.isTrue(condition, "Expected a VM Exception, got this instead:" + error.message);
 }
 
-export function assertInternalFunctionException(error) {
+const assertInternalFunctionException = function(error) {
   let condition = (
     error.message.search("is not a function") > -1
   );
   assert.isTrue(condition, "Expected a function not found Exception, got this instead:" + error.message);
 }
 
-export function assertJump(error) {
+const assertJump = function(error) {
   assert.isAbove(error.message.search("invalid JUMP"), -1, "Invalid JUMP error must be returned" + error.message);
 }
 
-export const setupAbsoluteVote = async function(voteOnBehalf = NULL_ADDRESS, precReq = 50 ) {
+const setupAbsoluteVote = async function(voteOnBehalf = NULL_ADDRESS, precReq = 50 ) {
   const absoluteVote = await AbsoluteVote.new();
   // register some parameters
   absoluteVote.setParameters( precReq, voteOnBehalf);
@@ -144,7 +144,7 @@ export const setupAbsoluteVote = async function(voteOnBehalf = NULL_ADDRESS, pre
   return { address: absoluteVote.address, contract: absoluteVote, params };
 };
 
-export const setupGenesisProtocol = async function(
+const setupGenesisProtocol = async function(
   accounts,
   token,
   avatar,
@@ -192,7 +192,7 @@ export const setupGenesisProtocol = async function(
   return {address: genesisProtocol.address, contract: genesisProtocol, reputationArray, params};
 };
 
-export const setupOrganizationWithArrays = async function(
+const setupOrganizationWithArrays = async function(
   daoCreator, daoCreatorOwner, founderToken, founderReputation, cap = 0
 ) {
   var tx = await daoCreator.forgeOrg(
@@ -214,7 +214,7 @@ export const setupOrganizationWithArrays = async function(
   return {avatar, token, reputation, controller};
 };
 
-export const setupOrganization = async function(
+const setupOrganization = async function(
   daoCreator, daoCreatorOwner, founderToken, founderReputation, cap = 0
 ) {
   var tx = await daoCreator.forgeOrg(
@@ -237,7 +237,7 @@ export const setupOrganization = async function(
 };
 
 
-export const checkVoteInfo = async function(absoluteVote, proposalId, voterAddress, _voteInfo) {
+const checkVoteInfo = async function(absoluteVote, proposalId, voterAddress, _voteInfo) {
   let voteInfo;
   voteInfo = await absoluteVote.voteInfo(proposalId, voterAddress);
   // voteInfo has the following structure
@@ -247,7 +247,7 @@ export const checkVoteInfo = async function(absoluteVote, proposalId, voterAddre
   assert.equal(voteInfo[ 1 ].toNumber(), _voteInfo[ 1 ]);
 };
 
-export const checkVotesStatus = async function(proposalId, _votesStatus, votingMachine){
+const checkVotesStatus = async function(proposalId, _votesStatus, votingMachine){
 
   let voteStatus;
   for (var i = 0; i < _votesStatus.length; i++) {
@@ -256,7 +256,7 @@ export const checkVotesStatus = async function(proposalId, _votesStatus, votingM
   }
 };
 
-export async function getProposalId(tx, contract, eventName) {
+const getProposalId = async function(tx, contract, eventName) {
   var proposalId;
   await contract.getPastEvents(eventName, {
     fromBlock: tx.blockNumber,
@@ -269,7 +269,7 @@ export async function getProposalId(tx, contract, eventName) {
 }
 
 // Increases testrpc time by the passed duration in seconds
-export const increaseTime = async function(duration) {
+const increaseTime = async function(duration) {
   const id = await Date.now();
 
   web3.providers.HttpProvider.prototype.sendAsync = web3.providers.HttpProvider.prototype.send;
@@ -294,11 +294,40 @@ export const increaseTime = async function(duration) {
   });
 };
 
-export function testCallFrom(address) {
+const testCallFrom = function(address) {
   return new web3.eth.Contract(ActionMock.abi).methods.test(address).encodeABI();
 }
-export function testCallWithoutReturnValueFrom(address) {
+const testCallWithoutReturnValueFrom = function(address) {
   return new web3.eth.Contract(ActionMock.abi).methods.testWithoutReturnValue(address).encodeABI();
 }
 
-export { encodePermission, decodePermission, encodeGenericCallData };
+module.exports = { 
+  logDecoder,
+  txDecoder,
+  MAX_UINT_256,
+  NULL_HASH,
+  SOME_HASH,
+  NULL_ADDRESS,
+  SOME_ADDRESS,
+  getProposalAddress,
+  getValueFromLogs,
+  getProposal,
+  etherForEveryone,
+  assertJumpOrOutOfGas,
+  assertVMException,
+  assertInternalFunctionException,
+  assertJump,
+  setupAbsoluteVote,
+  setupGenesisProtocol,
+  setupOrganizationWithArrays,
+  setupOrganization,
+  checkVoteInfo,
+  checkVotesStatus,
+  testCallFrom,
+  testCallWithoutReturnValueFrom,
+  getProposalId,
+  increaseTime,
+  encodePermission,
+  decodePermission,
+  encodeGenericCallData
+};
