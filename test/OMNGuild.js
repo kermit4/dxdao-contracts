@@ -112,59 +112,54 @@ contract("OMNGuild", function (accounts) {
 
   describe("OMNGuild", function () {
 
-// vm exception    it("execute a positive vote on the voting machine from the omn-guild", async function () {
-// vm exception//      await expectRevert(
-// vm exception//        omnGuild.createMarketValidationProposal (walletSchemeProposalId),
-// vm exception//        "OMNGuild: Not enough tokens to create proposal"
-// vm exception//      );
-// vm exception      const tx = await omnGuild.createMarketValidationProposal (walletSchemeProposalId);
-// vm exception
-// vm exception      const positiveVoteProposalId = tx.logs[0].args.proposalId;
-// vm exception      const negativeVoteProposalId = tx.logs[2].args.proposalId;
-// vm exception      
-// vm exception      await expectRevert(
-// vm exception        omnGuild.endProposal(positiveVoteProposalId),
-// vm exception        "OMNGuild: Use endVotingMachineProposal to end proposals to voting machine"
-// vm exception      );
-// vm exception      await expectRevert(
-// vm exception        omnGuild.endProposal(positiveVoteProposalId),
-// vm exception        "OMNGuild: Use endVotingMachineProposal to end proposals to voting machine"
-// vm exception      );
-// vm exception      await expectRevert(
-// vm exception        omnGuild.endVotingMachineProposal(walletSchemeProposalId),
-// vm exception        "OMNGuild: Positive proposal hasnt ended yet"
-// vm exception      );
-// vm exception      
-// vm exception//      const txVote = await setAllVotesOnProposal({
-// vm exception//        guild: omnGuild,
-// vm exception//        proposalId: positiveVoteProposalId,
-// vm exception//        account: accounts[4],
-// vm exception//      });
-// vm exception
-// vm exception      if (constants.ARC_GAS_PRICE > 1)
-// vm exception        expect(txVote.receipt.gasUsed).to.be.below(80000);
-// vm exception
-// vm exception      expectEvent(txVote, "VoteAdded", { proposalId: positiveVoteProposalId });
-// vm exception      await time.increase(time.duration.seconds(31));
-// vm exception      await expectRevert(
-// vm exception        omnGuild.endProposal(positiveVoteProposalId),
-// vm exception        "OMNGuild: Use endVotingMachineProposal to end proposals to voting machine"
-// vm exception      );
-// vm exception      await expectRevert(
-// vm exception        omnGuild.endProposal(negativeVoteProposalId),
-// vm exception        "OMNGuild: Use endVotingMachineProposal to end proposals to voting machine"
-// vm exception      );
-// vm exception      const receipt = await omnGuild.endVotingMachineProposal(walletSchemeProposalId);
-// vm exception      expectEvent(receipt, "ProposalExecuted", { proposalId: positiveVoteProposalId });
-// vm exception      await expectRevert(
-// vm exception        omnGuild.endVotingMachineProposal(walletSchemeProposalId),
-// vm exception        "OMNGuild: Positive proposal already executed"
-// vm exception      );
-// vm exception      await time.increase(time.duration.seconds(31));
-// vm exception      const proposalInfo = await omnGuild.getProposal(positiveVoteProposalId);
-// vm exception      assert.equal(proposalInfo.state, constants.WalletSchemeProposalState.executionSuccedd);
-// vm exception      assert.equal(proposalInfo.to[0], votingMachine.address);
-// vm exception      assert.equal(proposalInfo.value[0], 0);
-// vm exception    });
+    it("execute a positive vote on the voting machine from the omn-guild", async function () {
+//      await expectRevert(
+//        omnGuild.createMarketValidationProposal (walletSchemeProposalId),
+//        "OMNGuild: Not enough tokens to create proposal"
+//      );
+      const tx = await omnGuild.createMarketValidationProposal (walletSchemeProposalId);
+
+      const positiveVoteProposalId = tx.logs[0].args.proposalId;
+      
+      await expectRevert(
+        omnGuild.endProposal(positiveVoteProposalId),
+        "OMNGuild: Use endVotingMachineProposal to end proposals to voting machine"
+      );
+      await expectRevert(
+        omnGuild.endProposal(positiveVoteProposalId),
+        "OMNGuild: Use endVotingMachineProposal to end proposals to voting machine"
+      );
+      await expectRevert(
+        omnGuild.endVotingMachineProposal(walletSchemeProposalId),
+        "OMNGuild: Positive proposal hasnt ended yet"
+      );
+      
+//      const txVote = await setAllVotesOnProposal({
+//        guild: omnGuild,
+//        proposalId: positiveVoteProposalId,
+//        account: accounts[4],
+//      });
+
+      if (constants.ARC_GAS_PRICE > 1)
+        expect(txVote.receipt.gasUsed).to.be.below(80000);
+
+      expectEvent(txVote, "VoteAdded", { proposalId: positiveVoteProposalId });
+      await time.increase(time.duration.seconds(31));
+      await expectRevert(
+        omnGuild.endProposal(positiveVoteProposalId),
+        "OMNGuild: Use endVotingMachineProposal to end proposals to voting machine"
+      );
+      const receipt = await omnGuild.endVotingMachineProposal(walletSchemeProposalId);
+      expectEvent(receipt, "ProposalExecuted", { proposalId: positiveVoteProposalId });
+      await expectRevert(
+        omnGuild.endVotingMachineProposal(walletSchemeProposalId),
+        "OMNGuild: Positive proposal already executed"
+      );
+      await time.increase(time.duration.seconds(31));
+      const proposalInfo = await omnGuild.getProposal(positiveVoteProposalId);
+      assert.equal(proposalInfo.state, constants.WalletSchemeProposalState.executionSuccedd);
+      assert.equal(proposalInfo.to[0], votingMachine.address);
+      assert.equal(proposalInfo.value[0], 0);
+    });
   });
 });
