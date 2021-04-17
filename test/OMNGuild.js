@@ -82,9 +82,8 @@ contract("OMNGuild", function (accounts) {
        [true]
      ).encodeABI()],
      value: [0],
-     description: "Allow vote in voting machine",
-     contentHash: constants.NULL_ADDRESS,
-     account: accounts[4],
+     description: ["Allow vote in voting machine"],
+     contentHash: [constants.NULL_ADDRESS]
    });
 	for(var i=0;i<2;i++) {
 		const allowVotingMachineProposalId=allowVotingMachineProposalIds[i];
