@@ -15,7 +15,7 @@ const {
 const {
   createDAO,
   createAndSetupGuildToken,
-  createProposal,
+  createProposals,
   setAllVotesOnProposal
 } = require("./helpers/guild");
 
@@ -55,7 +55,7 @@ contract("OMNGuild", function (accounts) {
     org = createDaoResult.org;
     actionMock = await ActionMock.new();
     await omnGuild.methods['initialize(address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)'](
-      guildToken.address, 30, 30, 40, 0, VOTE_GAS, MAX_GAS_PRICE, TIMELOCK, 99999,  constants.NULL_ADDRESS
+      guildToken.address, 30, 30, 40, 0, VOTE_GAS, MAX_GAS_PRICE, TIMELOCK, 99999,  votingMachine.address
     );
     tokenVault = await omnGuild.tokenVault();
 
@@ -71,29 +71,35 @@ contract("OMNGuild", function (accounts) {
     
     tokenVault = await omnGuild.tokenVault();
 
-//    const allowVotingMachineProposalId = await createProposal({
-//      guild: omnGuild,
-//      to: [omnGuild.address],
-//      data: [await new web3.eth.Contract(
-//        OMNGuild.abi
-//      ).methods.setAllowance(
-//        [votingMachine.address],
-//        ["0x359afa49"],
-//        [true]
-//      ).encodeABI()],
-//      value: [0],
-//      description: "Allow vote in voting machine",
-//      contentHash: constants.NULL_ADDRESS,
-//      account: accounts[4],
-//    });
-//    await setAllVotesOnProposal({
-//      guild: omnGuild,
-//      proposalId: allowVotingMachineProposalId,
-//      account: accounts[4],
-//    });
-    await time.increase(time.duration.seconds(31));
-//    await omnGuild.endProposal(allowVotingMachineProposalId);
-    
+   const allowVotingMachineProposalIds = await createProposals({
+     guild: omnGuild,
+     to: [omnGuild.address],
+     data: [await new web3.eth.Contract(
+       OMNGuild.abi
+     ).methods.setAllowance(
+       [votingMachine.address],
+       ["0x359afa49"],
+       [true]
+     ).encodeABI()],
+     value: [0],
+     description: "Allow vote in voting machine",
+     contentHash: constants.NULL_ADDRESS,
+     account: accounts[4],
+   });
+	for(var i=0;i<2;i++) {
+		const allowVotingMachineProposalId=allowVotingMachineProposalIds[i];
+console.log("hi");
+console.log("hi" + allowVotingMachineProposalId);
+	   await setAllVotesOnProposal({
+		 guild: omnGuild,
+		 proposalId: allowVotingMachineProposalId,
+		 account: accounts[2+i],
+	   });
+console.log("ho");
+		await time.increase(time.duration.seconds(31));
+console.log("he");
+	    await omnGuild.endProposal(allowVotingMachineProposalId);
+    }
     walletSchemeProposalData = helpers.encodeGenericCallData(
       org.avatar.address, actionMock.address, helpers.testCallFrom(org.avatar.address), 0
     )
@@ -105,9 +111,9 @@ contract("OMNGuild", function (accounts) {
       constants.SOME_HASH
     );
     walletSchemeProposalId = await helpers.getValueFromLogs(tx, "_proposalId");
-//    genericCallData = await new web3.eth.Contract(
-  //    votingMachine.contract.abi
-    //).methods.vote(walletSchemeProposalId, 1, 0, constants.NULL_ADDRESS).encodeABI();
+    genericCallData = await new web3.eth.Contract(
+      votingMachine.contract.abi
+    ).methods.vote(walletSchemeProposalId, 1, 0, constants.NULL_ADDRESS).encodeABI();
   });
 
   describe("OMNGuild", function () {
