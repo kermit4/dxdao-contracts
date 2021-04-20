@@ -28,18 +28,13 @@ contract("OMNGuild", function (accounts) {
   const VOTE_GAS = new BN("50000"); // 50k
   const MAX_GAS_PRICE = new BN("8000000000"); // 8 gwei
 
-  let walletScheme,
-    daoCreator,
-    org,
-    actionMock,
-    votingMachine,
+  let actionMock,
     guildToken,
     omnGuild,
     tokenVault,
     callData,
     genericCallData,
     walletSchemeProposalId,
-    walletSchemeProposalData,
     genericProposal;
     
   beforeEach(async function () {
@@ -48,14 +43,9 @@ contract("OMNGuild", function (accounts) {
     );
     omnGuild = await OMNGuild.new();
     
-    const createDaoResult = await createDAO(omnGuild, accounts);
-    daoCreator = createDaoResult.daoCreator;
-    walletScheme = createDaoResult.walletScheme;
-    votingMachine = createDaoResult.votingMachine;
-    org = createDaoResult.org;
     actionMock = await ActionMock.new();
     await omnGuild.methods['initialize(address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)'](
-      guildToken.address, 30, 30, 40, 0, VOTE_GAS, MAX_GAS_PRICE, TIMELOCK, 99999,  votingMachine.address
+      guildToken.address, 30, 30, 40, 0, VOTE_GAS, MAX_GAS_PRICE, TIMELOCK, 99999,  constants.NULL_ADDRESS
     );
     tokenVault = await omnGuild.tokenVault();
 
@@ -90,34 +80,22 @@ contract("OMNGuild", function (accounts) {
 	 proposalId: allowVotingMachineProposalId,
 	 account: accounts[4],
    });
-console.log("ho");
 	await time.increase(time.duration.seconds(31));
-console.log("he");
 	await omnGuild.endProposal(allowVotingMachineProposalId);
-    walletSchemeProposalData = helpers.encodeGenericCallData(
-      org.avatar.address, actionMock.address, helpers.testCallFrom(org.avatar.address), 0
-    )
-    const tx = await walletScheme.proposeCalls(
-      [org.controller.address],
-      [walletSchemeProposalData],
-      [0],
-      "Test Title",
-      constants.SOME_HASH
-    );
-    walletSchemeProposalId = await helpers.getValueFromLogs(tx, "_proposalId");
-    genericCallData = await new web3.eth.Contract(
-      votingMachine.contract.abi
-    ).methods.vote(walletSchemeProposalId, 1, 0, constants.NULL_ADDRESS).encodeABI();
+    questionId = "0xbb59f79fe1bf1b9567199ebf17a28d98e22e65b3fd85b81e680e583aa36ea084"; // https://realitio.github.io/#!/question/0xbb59f79fe1bf1b9567199ebf17a28d98e22e65b3fd85b81e680e583aa36ea084
+//    genericCallData = await new web3.eth.Contract(
+  //    votingMachine.contract.abi
+  //  ).methods.vote(walletSchemeProposalId, 1, 0, constants.NULL_ADDRESS).encodeABI();
   });
 
   describe("OMNGuild", function () {
 
     it("execute a positive vote on the voting machine from the omn-guild", async function () {
-//      await expectRevert(
-//        omnGuild.createMarketValidationProposal (walletSchemeProposalId),
-//        "OMNGuild: Not enough tokens to create proposal"
+    //  await expectRevert(
+    //    omnGuild.createMarketValidationProposal (walletSchemeProposalId),
+  //      "OMNGuild: Not enough tokens to create proposal"
 //      );
-//      const tx = await omnGuild.createMarketValidationProposal (walletSchemeProposalId);
+      const tx = await omnGuild.createMarketValidationProposal (walletSchemeProposalId);
 
 //      const positiveVoteProposalId = tx.logs[0].args.proposalId;
       
