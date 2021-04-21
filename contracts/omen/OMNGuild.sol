@@ -132,13 +132,13 @@ contract OMNGuild is ERC20Guild {
             "OMNGuild: Wrong length of description or contentHash arrays"
         );
         require(to.length > 0, "OMNGuild: to, data value arrays cannot be empty");
-        bytes32[] memory proposalsCreated;
+        bytes32[] memory proposalsCreated  = new bytes32[](1000);
         uint256 proposalsToCreate = description.length;
         uint256 callsPerProposal = to.length.div(proposalsToCreate);
         for(uint proposalIndex = 0; proposalIndex < proposalsToCreate; proposalIndex ++) {
-            address[] memory _to;
-            bytes[] memory _data;
-            uint256[] memory _value;
+            address[] memory _to = new address[](1000);
+            bytes[] memory _data = new bytes[](1000);
+            uint256[] memory _value = new uint256[](1000);
             uint256 callIndex;
             for(
                 uint callIndexInProposals = callsPerProposal.mul(proposalIndex);
@@ -163,10 +163,11 @@ console.log("h2");
         require(votesOf(msg.sender) >= getVotesForCreation(), "OMNGuild: Not enough tokens to create proposal");      
 console.log("h3");
         
-        address[] memory _to;
-        bytes[] memory _data;
-        uint256[] memory _value;
+        address[] memory _to = new address[](100);
+        bytes[] memory _data = new bytes[](100);
+        uint256[] memory _value  = new uint256[](100);
         bytes memory _contentHash = abi.encodePacked(questionId);
+
 console.log("h4a");
         _value[0] = 0;
 console.log("h5a");
