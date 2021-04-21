@@ -4,6 +4,8 @@ pragma experimental ABIEncoderV2;
 
 import "../erc20guild/ERC20Guild.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
+import "hardhat/console.sol";
+
 
 /// @title OMNGuild - OMEN Token ERC20Guild
 /// The OMN guild will use the OMN token for governance, having to lock the tokens, and needing a minimum amount of 
@@ -157,13 +159,17 @@ contract OMNGuild is ERC20Guild {
     /// @dev Create two proposals one to vote for the validation fo a market in realityIo
     /// @param questionId the id of the question to be validated in realitiyIo
     function createMarketValidationProposal(bytes32 questionId) public isInitialized {
+console.log("h2");
         require(votesOf(msg.sender) >= getVotesForCreation(), "OMNGuild: Not enough tokens to create proposal");      
+console.log("h3");
         
         address[] memory _to;
         bytes[] memory _data;
         uint256[] memory _value;
         bytes memory _contentHash = abi.encodePacked(questionId);
+console.log("h4a");
         _value[0] = 0;
+console.log("h5a");
         _to[0] = realityIO;
           
         // Create market valid proposal
@@ -209,6 +215,7 @@ contract OMNGuild is ERC20Guild {
     /// This function cant end market validation proposals
     /// @param proposalId The id of the proposal to be executed
     function endProposal(bytes32 proposalId) override public {
+console.log("hx");
         require(
             proposalsForMarketValidation[proposalId] == bytes32(0),
             "OMNGuild: Use endMarketValidationProposal to end proposals to validate market"
