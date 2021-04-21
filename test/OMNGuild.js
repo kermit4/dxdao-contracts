@@ -1,6 +1,7 @@
 import * as helpers from "./helpers";
 const constants = require("./helpers/constants");
 const OMNGuild = artifacts.require("OMNGuild");
+const Realitio = artifacts.require("Realitio");
 const ActionMock = artifacts.require("ActionMock");
 const { fixSignature } = require("./helpers/sign");
 const {
@@ -31,10 +32,11 @@ contract("OMNGuild", function (accounts) {
   let actionMock,
     guildToken,
     omnGuild,
+	realitio,
     tokenVault,
     callData,
     genericCallData,
-    walletSchemeProposalId,
+    questionId,
     genericProposal;
     
   beforeEach(async function () {
@@ -42,10 +44,12 @@ contract("OMNGuild", function (accounts) {
       accounts.slice(0, 5), [0, 50, 100, 150, 200]
     );
     omnGuild = await OMNGuild.new();
-    
+    realitio = await Realitio.new();
+	questionId = (await realitio.askQuestion(0,"what?",realitio.address,10000000,0,1)).receipt.logs[0].args.question_id;
+   
     actionMock = await ActionMock.new();
     await omnGuild.methods['initialize(address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)'](
-      guildToken.address, 30, 30, 40, 0, VOTE_GAS, MAX_GAS_PRICE, TIMELOCK, 99999,  constants.NULL_ADDRESS
+      guildToken.address, 30, 30, 40, 0, VOTE_GAS, MAX_GAS_PRICE, TIMELOCK, 99999,  realitio.address
     );
     tokenVault = await omnGuild.tokenVault();
 
@@ -67,7 +71,7 @@ contract("OMNGuild", function (accounts) {
      data: [await new web3.eth.Contract(
        OMNGuild.abi
      ).methods.setAllowance(
-       [votingMachine.address],
+       [realitio.address],
        ["0x359afa49"],
        [true]
      ).encodeABI()],
@@ -82,20 +86,19 @@ contract("OMNGuild", function (accounts) {
    });
 	await time.increase(time.duration.seconds(31));
 	await omnGuild.endProposal(allowVotingMachineProposalId);
-    questionId = "0xbb59f79fe1bf1b9567199ebf17a28d98e22e65b3fd85b81e680e583aa36ea084"; // https://realitio.github.io/#!/question/0xbb59f79fe1bf1b9567199ebf17a28d98e22e65b3fd85b81e680e583aa36ea084
 //    genericCallData = await new web3.eth.Contract(
   //    votingMachine.contract.abi
-  //  ).methods.vote(walletSchemeProposalId, 1, 0, constants.NULL_ADDRESS).encodeABI();
+  //  ).methods.vote(questionId, 1, 0, constants.NULL_ADDRESS).encodeABI();
   });
 
   describe("OMNGuild", function () {
 
     it("execute a positive vote on the voting machine from the omn-guild", async function () {
     //  await expectRevert(
-    //    omnGuild.createMarketValidationProposal (walletSchemeProposalId),
+    //    omnGuild.createMarketValidationProposal (questionId),
   //      "OMNGuild: Not enough tokens to create proposal"
 //      );
-      const tx = await omnGuild.createMarketValidationProposal (walletSchemeProposalId);
+      const tx = await omnGuild.createMarketValidationProposal (questionId);
 
 //      const positiveVoteProposalId = tx.logs[0].args.proposalId;
       
@@ -108,7 +111,7 @@ contract("OMNGuild", function (accounts) {
  //       "OMNGuild: Use endVotingMachineProposal to end proposals to voting machine"
   //    );
   //    await expectRevert(
-//        omnGuild.endVotingMachineProposal(walletSchemeProposalId),
+//        omnGuild.endVotingMachineProposal(questionId),
     //    "OMNGuild: Positive proposal hasnt ended yet"
      // );
       
@@ -127,10 +130,10 @@ contract("OMNGuild", function (accounts) {
  //       omnGuild.endProposal(positiveVoteProposalId),
   //      "OMNGuild: Use endVotingMachineProposal to end proposals to voting machine"
    //   );
-//      const receipt = await omnGuild.endVotingMachineProposal(walletSchemeProposalId);
+//      const receipt = await omnGuild.endVotingMachineProposal(questionId);
 //      expectEvent(receipt, "ProposalExecuted", { proposalId: positiveVoteProposalId });
 //      await expectRevert(
- //       omnGuild.endVotingMachineProposal(walletSchemeProposalId),
+ //       omnGuild.endVotingMachineProposal(questionId),
   //      "OMNGuild: Positive proposal already executed"
    //   );
       await time.increase(time.duration.seconds(31));

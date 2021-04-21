@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.10.1",
+    "@nomiclabs/buidler": "^1.4.8",
     "@nomiclabs/hardhat-truffle5": "^2.0.0",
     "@nomiclabs/hardhat-web3": "^2.0.0",
     "@openzeppelin/contract-loader": "^0.6.1",
@@ -70,6 +71,7 @@
     "@openzeppelin/contracts": "3.4.0",
     "@openzeppelin/contracts-upgradeable": "3.4.0",
     "@openzeppelin/test-helpers": "^0.5.6",
+    "@realitio/realitio-contracts": ">=0.0.0",
     "chai": "^4.2.0",
     "math": "0.0.3",
     "moment": "^2.27.0",
