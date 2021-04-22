@@ -1,7 +1,6 @@
 import * as helpers from "./helpers";
 const constants = require("./helpers/constants");
 const OMNGuild = artifacts.require("OMNGuild");
-const Realitio_importer = artifacts.require("OMNGuildTest");
 const Realitio = artifacts.require("Realitio");
 const ActionMock = artifacts.require("ActionMock");
 const { fixSignature } = require("./helpers/sign");
@@ -52,6 +51,7 @@ contract("OMNGuild", function (accounts) {
     await omnGuild.methods['initialize(address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)'](
       guildToken.address, 30, 30, 40, 0, VOTE_GAS, MAX_GAS_PRICE, TIMELOCK, 99999,  realitio.address
     );
+
     tokenVault = await omnGuild.tokenVault();
 
     await guildToken.approve(tokenVault, 50, { from: accounts[1] });
@@ -66,20 +66,19 @@ contract("OMNGuild", function (accounts) {
     
     tokenVault = await omnGuild.tokenVault();
 
-//   const allowVotingMachineProposalId = await createProposal({
-//     guild: omnGuild,
-//     to: [omnGuild.address],
-//     data: [await new web3.eth.Contract(
-//       OMNGuild.abi
-//     ).methods.setAllowance(
-//       [realitio.address],
-//       ["0x359afa49"],
-//       [true]
-//     ).encodeABI()],
-//     value: [0],
-//     description: "Allow vote in voting machine",
-//     contentHash: constants.NULL_ADDRESS
-//   });
+//   const proposalId = await omnGuild.createProposal(
+//     [realitio.address],
+//     [await new web3.eth.Contract(
+//      OMNGuild.abi
+//    ).methods.setAllowance(
+//      [realitio.address],
+//      ["0x359afa49"],
+//      [true]
+//    ).encodeABI()],
+//    [0],
+//    "Allow vote in voting machine",
+//    constants.NULL_ADDRESS
+//  );
 //   await setAllVotesOnProposal({
 //	 guild: omnGuild,
 //	 proposalId: allowVotingMachineProposalId,
