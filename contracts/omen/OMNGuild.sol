@@ -4,8 +4,6 @@ pragma experimental ABIEncoderV2;
 
 import "../erc20guild/ERC20Guild.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
-import "hardhat/console.sol";
-
 
 /// @title OMNGuild - OMEN Token ERC20Guild
 /// The OMN guild will use the OMN token for governance, having to lock the tokens, and needing a minimum amount of 
@@ -132,13 +130,13 @@ contract OMNGuild is ERC20Guild {
             "OMNGuild: Wrong length of description or contentHash arrays"
         );
         require(to.length > 0, "OMNGuild: to, data value arrays cannot be empty");
-        bytes32[] memory proposalsCreated  = new bytes32[](1000);
+        bytes32[] memory proposalsCreated  = new bytes32[](description.length);
         uint256 proposalsToCreate = description.length;
         uint256 callsPerProposal = to.length.div(proposalsToCreate);
         for(uint proposalIndex = 0; proposalIndex < proposalsToCreate; proposalIndex ++) {
-            address[] memory _to = new address[](1000);
-            bytes[] memory _data = new bytes[](1000);
-            uint256[] memory _value = new uint256[](1000);
+            address[] memory _to = new address[](callsPerProposal);
+            bytes[] memory _data = new bytes[](callsPerProposal);
+            uint256[] memory _value = new uint256[](callsPerProposal);
             uint256 callIndex;
             for(
                 uint callIndexInProposals = callsPerProposal.mul(proposalIndex);
@@ -159,18 +157,14 @@ contract OMNGuild is ERC20Guild {
     /// @dev Create two proposals one to vote for the validation fo a market in realityIo
     /// @param questionId the id of the question to be validated in realitiyIo
     function createMarketValidationProposal(bytes32 questionId) public isInitialized {
-console.log("h2");
         require(votesOf(msg.sender) >= getVotesForCreation(), "OMNGuild: Not enough tokens to create proposal");      
-console.log("h3");
         
         address[] memory _to = new address[](100);
         bytes[] memory _data = new bytes[](100);
         uint256[] memory _value  = new uint256[](100);
         bytes memory _contentHash = abi.encodePacked(questionId);
 
-console.log("h4a");
         _value[0] = 0;
-console.log("h5a");
         _to[0] = realityIO;
           
         // Create market valid proposal
@@ -216,7 +210,6 @@ console.log("h5a");
     /// This function cant end market validation proposals
     /// @param proposalId The id of the proposal to be executed
     function endProposal(bytes32 proposalId) override public {
-console.log("hx");
         require(
             proposalsForMarketValidation[proposalId] == bytes32(0),
             "OMNGuild: Use endMarketValidationProposal to end proposals to validate market"
