@@ -1,6 +1,7 @@
 import * as helpers from "./helpers";
 const constants = require("./helpers/constants");
 const OMNGuild = artifacts.require("OMNGuild");
+const Realitio_importer = artifacts.require("OMNGuildTest");
 const Realitio = artifacts.require("Realitio");
 const ActionMock = artifacts.require("ActionMock");
 const { fixSignature } = require("./helpers/sign");
