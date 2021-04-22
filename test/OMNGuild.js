@@ -51,6 +51,7 @@ contract("OMNGuild", function (accounts) {
     await omnGuild.methods['initialize(address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)'](
       guildToken.address, 30, 30, 40, 0, VOTE_GAS, MAX_GAS_PRICE, TIMELOCK, 99999,  realitio.address
     );
+	omnGuild.setOMNGuildConfig(1000,realitio.address,1000,1000);
 
     tokenVault = await omnGuild.tokenVault();
 
@@ -66,19 +67,19 @@ contract("OMNGuild", function (accounts) {
     
     tokenVault = await omnGuild.tokenVault();
 
-//   const proposalId = await omnGuild.createProposal(
-//     [realitio.address],
-//     [await new web3.eth.Contract(
-//      OMNGuild.abi
-//    ).methods.setAllowance(
-//      [realitio.address],
-//      ["0x359afa49"],
-//      [true]
-//    ).encodeABI()],
-//    [0],
-//    "Allow vote in voting machine",
-//    constants.NULL_ADDRESS
-//  );
+   const proposalId = await omnGuild.createProposal(
+     [realitio.address],
+     [await new web3.eth.Contract(
+      OMNGuild.abi
+    ).methods.setAllowance(
+      [realitio.address],
+      ["0x359afa49"],
+      [true]
+    ).encodeABI()],
+    [0],
+    "Allow vote in voting machine",
+    constants.NULL_ADDRESS
+  );
 //   await setAllVotesOnProposal({
 //	 guild: omnGuild,
 //	 proposalId: allowVotingMachineProposalId,
