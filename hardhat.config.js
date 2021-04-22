@@ -9,6 +9,8 @@ require('hardhat-gas-reporter');
 require('solidity-coverage');
 require('@openzeppelin/hardhat-upgrades');
 require("@nomiclabs/hardhat-etherscan");
+require('hardhat-dependency-compiler');
+
 
 
 const INFURA_PROJECT_ID = process.env.KEY_INFURA_API_KEY;
@@ -122,6 +124,11 @@ module.exports = {
       timeout: 60000
     }
   },
-  etherscan: { apiKey: ETHERSCAN_API_KEY }
+  etherscan: { apiKey: ETHERSCAN_API_KEY },
 
+dependencyCompiler: {
+	  paths: [
+		      '@realitio/realitio-contracts/truffle/contracts/Realitio.sol',
+		],
+}
 };
