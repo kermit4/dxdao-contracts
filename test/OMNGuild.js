@@ -67,19 +67,21 @@ contract("OMNGuild", function (accounts) {
     
     tokenVault = await omnGuild.tokenVault();
 
-   const proposalId = await omnGuild.createProposal(
-     [realitio.address],
-     [await new web3.eth.Contract(
-      OMNGuild.abi
-    ).methods.setAllowance(
-      [realitio.address],
-      ["0x359afa49"],
-      [true]
-    ).encodeABI()],
-    [0],
-    "Allow vote in voting machine",
-    constants.NULL_ADDRESS
-  );
+   const proposalId = await createProposal({
+     guild: omnGuild,
+     to: [accounts[1]],
+     data: [await new web3.eth.Contract(
+       OMNGuild.abi
+     ).methods.setAllowance(
+       [realitio.address],
+       ["0x359afa49"],
+       [true]
+     ).encodeABI()],
+     value: [0],
+     description: "Allow vote in voting machine",
+     contentHash: constants.NULL_ADDRESS,
+	 account:accounts[0]
+   });
 //   await setAllVotesOnProposal({
 //	 guild: omnGuild,
 //	 proposalId: allowVotingMachineProposalId,
