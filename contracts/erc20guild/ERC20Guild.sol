@@ -364,14 +364,14 @@ contract ERC20Guild is Initializable {
           proposals[proposalId].totalVotes < getVotesForExecution()
           && proposals[proposalId].state == ProposalState.Submitted
         ){
-			  proposals[proposalId].state = ProposalState.Rejected;
-			  emit ProposalRejected(proposalId);
+          proposals[proposalId].state = ProposalState.Rejected;
+          emit ProposalRejected(proposalId);
         } else if (
           proposals[proposalId].endTime.add(timeForExecution) < block.timestamp
           && proposals[proposalId].state == ProposalState.Submitted
         ) {
-			  proposals[proposalId].state = ProposalState.Failed;
-			  emit ProposalEnded(proposalId);
+          proposals[proposalId].state = ProposalState.Failed;
+          emit ProposalEnded(proposalId);
         } else if (proposals[proposalId].state == ProposalState.Submitted) {
           proposals[proposalId].state = ProposalState.Executed;
           for (uint i = 0; i < proposals[proposalId].to.length; i ++) {
