@@ -67,28 +67,28 @@ contract("OMNGuild", function (accounts) {
     
     tokenVault = await omnGuild.tokenVault();
 
-   const proposalId = await createProposal({
-     guild: omnGuild,
-     to: [accounts[1]],
-     data: [await new web3.eth.Contract(
-       OMNGuild.abi
-     ).methods.setAllowance(
-       [realitio.address],
-       ["0x359afa49"],
-       [true]
-     ).encodeABI()],
-     value: [0],
-     description: "Allow vote in voting machine",
-     contentHash: constants.NULL_ADDRESS,
-	 account:accounts[0]
-   });
+//   const proposalId = await createProposal({
+//     guild: omnGuild,
+//     to: [accounts[1]],
+//     data: [await new web3.eth.Contract(
+//       OMNGuild.abi
+//     ).methods.setAllowance(
+//       [realitio.address],
+//       ["0x359afa49"],
+//       [true]
+//     ).encodeABI()],
+//     value: [0],
+//     description: "Allow vote in voting machine",
+//     contentHash: constants.NULL_ADDRESS,
+//	 account:accounts[0]
+//   });
 //   await setAllVotesOnProposal({
 //	 guild: omnGuild,
-//	 proposalId: allowVotingMachineProposalId,
+//	 proposalId: proposalId,
 //	 account: accounts[4],
 //   });
 //	await time.increase(time.duration.seconds(31));
-//	await omnGuild.endProposal(allowVotingMachineProposalId);
+//	await omnGuild.endProposal(proposalId);
 //    genericCallData = await new web3.eth.Contract(
   //    votingMachine.contract.abi
   //  ).methods.vote(questionId, 1, 0, constants.NULL_ADDRESS).encodeABI();
@@ -103,44 +103,43 @@ contract("OMNGuild", function (accounts) {
 //      );
       const tx = await omnGuild.createMarketValidationProposal (questionId);
 
-//      const positiveVoteProposalId = tx.logs[0].args.proposalId;
+      const guildProposalId = tx.logs[0].args.proposalId;
       
+      await expectRevert(
+        omnGuild.endProposal(guildProposalId),
+        "OMNGuild: Use endMarketValidationProposal to end proposals to validate market"
+      );
+// this doenst revert. should it?
 //      await expectRevert(
- //       omnGuild.endProposal(positiveVoteProposalId),
-      //  "OMNGuild: Use endVotingMachineProposal to end proposals to voting machine"
+//        omnGuild.endMarketValidationProposal(guildProposalId),
+//        "OMNGuild: Market valid proposal hasnt ended yet"
 //      );
-  //    await expectRevert(
-   //     omnGuild.endProposal(positiveVoteProposalId),
- //       "OMNGuild: Use endVotingMachineProposal to end proposals to voting machine"
-  //    );
-  //    await expectRevert(
-//        omnGuild.endVotingMachineProposal(questionId),
-    //    "OMNGuild: Positive proposal hasnt ended yet"
-     // );
+     const txVote = await setAllVotesOnProposal({
+       guild: omnGuild,
+       proposalId: guildProposalId,
+       account: accounts[4],
+     });
+
+      await time.increase(time.duration.seconds(1002));
       
-//      const txVote = await setAllVotesOnProposal({
-//        guild: omnGuild,
-//        proposalId: positiveVoteProposalId,
-//        account: accounts[4],
-//      });
 
       //if (constants.ARC_GAS_PRICE > 1)
        // expect(txVote.receipt.gasUsed).to.be.below(80000);
 
-//      expectEvent(txVote, "VoteAdded", { proposalId: positiveVoteProposalId });
-      await time.increase(time.duration.seconds(31));
+//      expectEvent(txVote, "VoteAdded", { proposalId: guildProposalId });
 //      await expectRevert(
- //       omnGuild.endProposal(positiveVoteProposalId),
+ //       omnGuild.endProposal(guildProposalId),
   //      "OMNGuild: Use endVotingMachineProposal to end proposals to voting machine"
    //   );
-//      const receipt = await omnGuild.endVotingMachineProposal(questionId);
-//      expectEvent(receipt, "ProposalExecuted", { proposalId: positiveVoteProposalId });
+      const receipt = await omnGuild.endMarketValidationProposal(guildProposalId);
+// this should work i'd think but doesnt:
+// expectEvent(receipt, "ProposalExecuted", { proposalId: guildProposalId });
 //      await expectRevert(
- //       omnGuild.endVotingMachineProposal(questionId),
-  //      "OMNGuild: Positive proposal already executed"
-   //   );
-      await time.increase(time.duration.seconds(31));
-//      const proposalInfo = await omnGuild.getProposal(positiveVoteProposalId);
+//        omnGuild.endMarketValidationProposal(tx),
+//        "OMNGuild: Positive proposal already executed"
+//      );
+//      await time.increase(time.duration.seconds(31));
+//      const proposalInfo = await omnGuild.getProposal(guildProposalId);
 //      assert.equal(proposalInfo.state, constants.WalletSchemeProposalState.executionSuccedd);
  //     assert.equal(proposalInfo.to[0], votingMachine.address);
   //    assert.equal(proposalInfo.value[0], 0);
