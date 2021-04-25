@@ -45,7 +45,7 @@ contract("OMNGuild", function (accounts) {
     );
     omnGuild = await OMNGuild.new();
     realitio = await Realitio.new();
-	questionId = (await realitio.askQuestion(0,"what?",realitio.address,10000000,0,1)).receipt.logs[0].args.question_id;
+	questionId = (await realitio.askQuestion(0,"what?",omnGuild.address,10000000,0,1)).receipt.logs[0].args.question_id;
    
     actionMock = await ActionMock.new();
 
