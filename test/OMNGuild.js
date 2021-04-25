@@ -47,6 +47,7 @@ contract("OMNGuild", function (accounts) {
     realitio = await Realitio.new();
 	questionId = (await realitio.askQuestion(0,"what?",omnGuild.address,30,0,1)).receipt.logs[0].args.question_id;
    
+
     actionMock = await ActionMock.new();
 
 // it seems that this is called this way because if it was called normally the parent class's function would be called instead
