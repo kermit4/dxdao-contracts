@@ -48,6 +48,8 @@ contract("OMNGuild", function (accounts) {
 	questionId = (await realitio.askQuestion(0,"what?",realitio.address,10000000,0,1)).receipt.logs[0].args.question_id;
    
     actionMock = await ActionMock.new();
+
+// it seems that this is called this way because if it was called normally the parent class's function would be called instead
     await omnGuild.methods['initialize(address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)'](
       guildToken.address, 30, 30, 40, 0, VOTE_GAS, MAX_GAS_PRICE, TIMELOCK, 99999,  realitio.address
     );
@@ -96,7 +98,7 @@ contract("OMNGuild", function (accounts) {
 
   describe("OMNGuild", function () {
 
-    it("execute a positive vote on the voting machine from the omn-guild", async function () {
+    it("vote on and execute a market validation proposal from the omn-guild", async function () {
     //  await expectRevert(
     //    omnGuild.createMarketValidationProposal (questionId),
   //      "OMNGuild: Not enough tokens to create proposal"
@@ -109,18 +111,17 @@ contract("OMNGuild", function (accounts) {
         omnGuild.endProposal(guildProposalId),
         "OMNGuild: Use endMarketValidationProposal to end proposals to validate market"
       );
-// this doenst revert. should it?
-//      await expectRevert(
-//        omnGuild.endMarketValidationProposal(guildProposalId),
-//        "OMNGuild: Market valid proposal hasnt ended yet"
-//      );
+      await expectRevert(
+        omnGuild.endMarketValidationProposal(questionId),
+        "OMNGuild: Market valid proposal hasnt ended yet"
+      );
      const txVote = await setAllVotesOnProposal({
        guild: omnGuild,
        proposalId: guildProposalId,
        account: accounts[4],
      });
 
-      await time.increase(time.duration.seconds(1002));
+      await time.increase(time.duration.seconds(40));
       
 
       //if (constants.ARC_GAS_PRICE > 1)
@@ -131,13 +132,14 @@ contract("OMNGuild", function (accounts) {
  //       omnGuild.endProposal(guildProposalId),
   //      "OMNGuild: Use endVotingMachineProposal to end proposals to voting machine"
    //   );
-      const receipt = await omnGuild.endMarketValidationProposal(guildProposalId);
+      const receipt = await omnGuild.endMarketValidationProposal(questionId);
 // this should work i'd think but doesnt:
-// expectEvent(receipt, "ProposalExecuted", { proposalId: guildProposalId });
-//      await expectRevert(
-//        omnGuild.endMarketValidationProposal(tx),
-//        "OMNGuild: Positive proposal already executed"
-//      );
+// expectEvent(receipt, "ProposalEnded", { proposalId: guildProposalId });
+ expectEvent(receipt, "ProposalExecuted", { proposalId: guildProposalId });
+      await expectRevert(
+        omnGuild.endMarketValidationProposal(questionId),
+        "OMNGuild: Market valid proposal already executed"
+      );
 //      await time.increase(time.duration.seconds(31));
 //      const proposalInfo = await omnGuild.getProposal(guildProposalId);
 //      assert.equal(proposalInfo.state, constants.WalletSchemeProposalState.executionSuccedd);
