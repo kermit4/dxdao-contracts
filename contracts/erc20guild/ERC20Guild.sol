@@ -385,11 +385,12 @@ contract ERC20Guild is Initializable {
                     getCallPermission(proposals[proposalId].to[i], proposalSignature),
                     "ERC20Guild: Not allowed call"
                     );
-                    (bool success,bytes memory data) = proposals[proposalId].to[i]
-                      .call{value: proposals[proposalId].value[i]}(proposals[proposalId].data[i]);
-					  console.log(string(data)); // question must be pending arbitration
-                    require(success, "ERC20Guild: Proposal call failed");
-                }
+				(bool success,bytes memory data) = proposals[proposalId].to[i]
+				  .call{value: proposals[proposalId].value[i]}(proposals[proposalId].data[i]);
+				  console.log("ERC20Guild:390\n"); 
+				  console.log(string(data)); 
+				require(success, "ERC20Guild: Proposal call failed");
+			}
             emit ProposalExecuted(proposalId);
         }
     }

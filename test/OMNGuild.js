@@ -45,13 +45,13 @@ contract("OMNGuild", function (accounts) {
     );
     omnGuild = await OMNGuild.new();
     realitio = await Realitio.new();
-	questionId = (await realitio.askQuestion(0,"what?",omnGuild.address,10000000,0,1)).receipt.logs[0].args.question_id;
+	questionId = (await realitio.askQuestion(0,"what?",omnGuild.address,30,0,1)).receipt.logs[0].args.question_id;
    
     actionMock = await ActionMock.new();
 
 // it seems that this is called this way because if it was called normally the parent class's function would be called instead
     await omnGuild.methods['initialize(address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)'](
-      guildToken.address, 30, 30, 40, 0, VOTE_GAS, MAX_GAS_PRICE, TIMELOCK, 99999,  realitio.address
+      guildToken.address, 30, 130000, 40, 0, VOTE_GAS, MAX_GAS_PRICE, TIMELOCK, 99999,  realitio.address
     );
 	omnGuild.setOMNGuildConfig(1000,realitio.address,1000,1000);
 
@@ -121,7 +121,7 @@ contract("OMNGuild", function (accounts) {
        account: accounts[4],
      });
 
-      await time.increase(time.duration.seconds(40));
+      await time.increase(time.duration.seconds(100000));
       
 
       //if (constants.ARC_GAS_PRICE > 1)
