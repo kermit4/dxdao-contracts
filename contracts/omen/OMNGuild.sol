@@ -187,7 +187,7 @@ contract OMNGuild is ERC20Guild {
             _createProposal( _to, _data, _value, string("Market invalid"), _contentHash );
         proposalsForMarketValidation[marketValidationProposals[questionId].marketInvalid] = questionId;
 		console.log("OMNGuild a\n");
-		realitIO.submitAnswer{value:1000000}(questionId, bytes32(0), 0);
+		realitIO.submitAnswer{value:1}(questionId, bytes32(0), 0);
 		console.log("OMNGuild b\n");
 		realitIO.notifyOfArbitrationRequest(questionId, address(realitIO), 0);
 		console.log("OMNGuild c\n");
