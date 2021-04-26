@@ -160,7 +160,7 @@ contract OMNGuild is ERC20Guild {
     
     /// @dev Create two proposals one to vote for the validation fo a market in realitIO
     /// @param questionId the id of the question to be validated in realitiyIo
-    function createMarketValidationProposal(bytes32 questionId) public payable isInitialized {
+    function createMarketValidationProposal(bytes32 questionId) public isInitialized {
         require(votesOf(msg.sender) >= getVotesForCreation(), "OMNGuild: Not enough tokens to create proposal");      
         
         address[] memory _to = new address[](1);
@@ -187,10 +187,8 @@ contract OMNGuild is ERC20Guild {
             _createProposal( _to, _data, _value, string("Market invalid"), _contentHash );
         proposalsForMarketValidation[marketValidationProposals[questionId].marketInvalid] = questionId;
 		console.log("OMNGuild a\n");
-		realitIO.submitAnswer{value:1}(questionId, bytes32(0), 0);
-		console.log("OMNGuild b\n");
 		realitIO.notifyOfArbitrationRequest(questionId, address(realitIO), 0);
-		console.log("OMNGuild c\n");
+		console.log("OMNGuild b\n");
     }
     
     /// @dev Ends the market validation by executing the proposal with higher votes and rejecting the other

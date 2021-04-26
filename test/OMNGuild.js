@@ -47,6 +47,7 @@ contract("OMNGuild", function (accounts) {
     realitio = await Realitio.new();
 	questionId = (await realitio.askQuestion(0,"how many tests could a test question test if a test question would test questions?",omnGuild.address,30,0,1)).receipt.logs[0].args.question_id;
    
+await realitio.submitAnswer(questionId, web3.utils.asciiToHex("filler"), 0,{value:1});
 	//await realitio.connect(omnGuild.address).notifyOfArbitrationRequest(questionId, accounts[1], 0);
 
     actionMock = await ActionMock.new();
@@ -106,7 +107,7 @@ contract("OMNGuild", function (accounts) {
   //      "OMNGuild: Not enough tokens to create proposal"
 //      );
 //	const tx = await web3.eth.sendTransaction({from:accounts[4],to:omnGuild.address, value:2});
-       const tx = await  omnGuild.createMarketValidationProposal(questionId,{value:2});
+       const tx = await  omnGuild.createMarketValidationProposal(questionId);
 												   
 //      const tx = await omnGuild.createMarketValidationProposal (questionId);
 
