@@ -45,7 +45,6 @@ contract("OMNGuild", function (accounts) {
     );
     omnGuild = await OMNGuild.new();
     realitio = await Realitio.new();
-	await web3.eth.sendTransaction({from:accounts[4],to:omnGuild.address, value:2});
 	questionId = (await realitio.askQuestion(0,"how many tests could a test question test if a test question would test questions?",omnGuild.address,30,0,1)).receipt.logs[0].args.question_id;
    
 	//await realitio.connect(omnGuild.address).notifyOfArbitrationRequest(questionId, accounts[1], 0);
@@ -106,11 +105,14 @@ contract("OMNGuild", function (accounts) {
     //    omnGuild.createMarketValidationProposal (questionId),
   //      "OMNGuild: Not enough tokens to create proposal"
 //      );
-      const tx = await omnGuild.createMarketValidationProposal (questionId);
+//	const tx = await web3.eth.sendTransaction({from:accounts[4],to:omnGuild.address, value:2});
+       const tx = await  omnGuild.createMarketValidationProposal(questionId,{value:2});
+												   
+//      const tx = await omnGuild.createMarketValidationProposal (questionId);
 
-      const guildProposalId = tx.logs[0].args.proposalId;
-      
-      await expectRevert(
+  const guildProposalId = tx.logs[0].args.proposalId;
+  
+  await expectRevert(
         omnGuild.endProposal(guildProposalId),
         "OMNGuild: Use endMarketValidationProposal to end proposals to validate market"
       );

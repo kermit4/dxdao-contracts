@@ -160,7 +160,7 @@ contract OMNGuild is ERC20Guild {
     
     /// @dev Create two proposals one to vote for the validation fo a market in realitIO
     /// @param questionId the id of the question to be validated in realitiyIo
-    function createMarketValidationProposal(bytes32 questionId) public isInitialized {
+    function createMarketValidationProposal(bytes32 questionId) public payable isInitialized {
         require(votesOf(msg.sender) >= getVotesForCreation(), "OMNGuild: Not enough tokens to create proposal");      
         
         address[] memory _to = new address[](1);
