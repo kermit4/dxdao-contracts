@@ -4,7 +4,7 @@ pragma experimental ABIEncoderV2;
 
 import "../erc20guild/ERC20Guild.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
-//import "@realitio/realitio-contracts/truffle/contracts/IRealitio.sol";
+import "../realitio/IRealitio.sol";
 
 import "hardhat/console.sol";
 
@@ -22,7 +22,7 @@ contract OMNGuild is ERC20Guild {
     uint256 public maxAmountVotes;
     
     // The address of the Realit.io smart contract
-    address public realitIO;
+    IRealitio public realitIO;
     
     // The function signature of function to be exeucted by the guild to resolve a question in Realit.io
     bytes4 public submitAnswerByArbitratorSignature;
@@ -70,7 +70,7 @@ contract OMNGuild is ERC20Guild {
         uint256 _maxGasPrice,
         uint256 _lockTime,
         uint256 _maxAmountVotes,
-        address _realitIO
+        IRealitio _realitIO
     ) public initializer {
         super.initialize(
           _token,
@@ -88,7 +88,7 @@ contract OMNGuild is ERC20Guild {
         submitAnswerByArbitratorSignature = bytes4(
           keccak256("submitAnswerByArbitrator(bytes32,bytes32,address)")
         );
-        callPermissions[realitIO][submitAnswerByArbitratorSignature] = true;
+        callPermissions[address(realitIO)][submitAnswerByArbitratorSignature] = true;
         callPermissions[address(this)][bytes4(keccak256("setOMNGuildConfig(uint256,address,uint256,uint256"))] = true;
     }
     
@@ -101,7 +101,7 @@ contract OMNGuild is ERC20Guild {
     ///  vote
     function setOMNGuildConfig(
         uint256 _maxAmountVotes,
-        address _realitIO,
+        IRealitio _realitIO,
         uint256 _successfulVoteReward,
         uint256 _unsuccessfulVoteReward
     ) public isInitialized {
@@ -169,7 +169,7 @@ contract OMNGuild is ERC20Guild {
         bytes memory _contentHash = abi.encodePacked(questionId);
 
         _value[0] = 0;
-        _to[0] = realitIO;
+        _to[0] = address(realitIO);
           
         // Create market valid proposal
         _data[0] = abi.encodeWithSelector(
@@ -186,6 +186,7 @@ contract OMNGuild is ERC20Guild {
         marketValidationProposals[questionId].marketInvalid = 
             _createProposal( _to, _data, _value, string("Market invalid"), _contentHash );
         proposalsForMarketValidation[marketValidationProposals[questionId].marketInvalid] = questionId;
+		realitIO.notifyOfArbitrationRequest(questionId, address(realitIO), 0);
     }
     
     /// @dev Ends the market validation by executing the proposal with higher votes and rejecting the other
@@ -203,7 +204,6 @@ contract OMNGuild is ERC20Guild {
         require(marketValidProposal.endTime < block.timestamp, "OMNGuild: Market valid proposal hasnt ended yet");
         require(marketInvalidProposal.endTime < block.timestamp, "OMNGuild: Market invalid proposal hasnt ended yet");
 	
-//		realitIO.notifyOfArbitrationRequest(questionId, realitIO, 0);
         
         if (marketValidProposal.totalVotes > marketInvalidProposal.totalVotes) {
             _endProposal(marketValidationProposals[questionId].marketValid);
