@@ -6,8 +6,6 @@ import "../erc20guild/ERC20Guild.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "../realitio/IRealitio.sol";
 
-import "hardhat/console.sol";
-
 /// @title OMNGuild - OMEN Token ERC20Guild
 /// The OMN guild will use the OMN token for governance, having to lock the tokens, and needing a minimum amount of 
 /// tokens locked to create proposals.
@@ -186,9 +184,7 @@ contract OMNGuild is ERC20Guild {
         marketValidationProposals[questionId].marketInvalid = 
             _createProposal( _to, _data, _value, string("Market invalid"), _contentHash );
         proposalsForMarketValidation[marketValidationProposals[questionId].marketInvalid] = questionId;
-		console.log("OMNGuild a\n");
 		realitIO.notifyOfArbitrationRequest(questionId, address(realitIO), 0);
-		console.log("OMNGuild b\n");
     }
     
     /// @dev Ends the market validation by executing the proposal with higher votes and rejecting the other
@@ -199,13 +195,8 @@ contract OMNGuild is ERC20Guild {
         
         require(marketValidProposal.state == ProposalState.Submitted, "OMNGuild: Market valid proposal already executed");
         require(marketInvalidProposal.state == ProposalState.Submitted, "OMNGuild: Market invalid proposal already executed");
-		console.log(marketInvalidProposal.endTime);
-		console.log(marketValidProposal.endTime);
-		console.log(block.timestamp);
-		//console.log(marketValidationProposals[questionId].marketValid);
         require(marketValidProposal.endTime < block.timestamp, "OMNGuild: Market valid proposal hasnt ended yet");
         require(marketInvalidProposal.endTime < block.timestamp, "OMNGuild: Market invalid proposal hasnt ended yet");
-	
         
         if (marketValidProposal.totalVotes > marketInvalidProposal.totalVotes) {
             _endProposal(marketValidationProposals[questionId].marketValid);

@@ -10,7 +10,6 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "../utils/TokenVault.sol";
 import "../utils/Arrays.sol";
 
-import "hardhat/console.sol";
 /// @title ERC20Guild
 /// @author github:AugustoL
 /// @dev Extends an ERC20 functionality into a Guild, adding a simple governance system over an ERC20 token.
@@ -343,10 +342,6 @@ contract ERC20Guild is Initializable {
         newProposal.creator = msg.sender;
         newProposal.startTime = block.timestamp;
         newProposal.endTime = block.timestamp.add(proposalTime);
-        console.log("erc2guild");
-        console.log(proposalTime);
-        console.log(newProposal.endTime);
-//        console.log(proposalId);
         newProposal.to = to;
         newProposal.data = data;
         newProposal.value = value;
@@ -365,32 +360,30 @@ contract ERC20Guild is Initializable {
     /// @dev Execute a proposal that has already passed the votation time and has enough votes
     /// @param proposalId The id of the proposal to be executed
     function _endProposal(bytes32 proposalId) internal {
-        if(proposals[proposalId].state != ProposalState.Submitted)
-            return;
         if (
           proposals[proposalId].totalVotes < getVotesForExecution()
-        ) {
-              proposals[proposalId].state = ProposalState.Rejected;
-              emit ProposalRejected(proposalId);
+          && proposals[proposalId].state == ProposalState.Submitted
+        ){
+          proposals[proposalId].state = ProposalState.Rejected;
+          emit ProposalRejected(proposalId);
         } else if (
-              proposals[proposalId].endTime.add(timeForExecution) < block.timestamp
+          proposals[proposalId].endTime.add(timeForExecution) < block.timestamp
+          && proposals[proposalId].state == ProposalState.Submitted
         ) {
-              proposals[proposalId].state = ProposalState.Failed;
-              emit ProposalEnded(proposalId);
-        } else  {
-            proposals[proposalId].state = ProposalState.Executed;
-            for (uint i = 0; i < proposals[proposalId].to.length; i ++) {
-                bytes4 proposalSignature = getFuncSignature(proposals[proposalId].data[i]);
-                require(
-                    getCallPermission(proposals[proposalId].to[i], proposalSignature),
-                    "ERC20Guild: Not allowed call"
-                    );
-				(bool success,bytes memory data) = proposals[proposalId].to[i]
-				  .call{value: proposals[proposalId].value[i]}(proposals[proposalId].data[i]);
-				  console.log("ERC20Guild:390\n"); 
-				  console.log(string(data)); 
-				require(success, "ERC20Guild: Proposal call failed");
-			}
+          proposals[proposalId].state = ProposalState.Failed;
+          emit ProposalEnded(proposalId);
+        } else if (proposals[proposalId].state == ProposalState.Submitted) {
+          proposals[proposalId].state = ProposalState.Executed;
+          for (uint i = 0; i < proposals[proposalId].to.length; i ++) {
+            bytes4 proposalSignature = getFuncSignature(proposals[proposalId].data[i]);
+            require(
+              getCallPermission(proposals[proposalId].to[i], proposalSignature),
+              "ERC20Guild: Not allowed call"
+              );
+              (bool success,) = proposals[proposalId].to[i]
+                .call{value: proposals[proposalId].value[i]}(proposals[proposalId].data[i]);
+              require(success, "ERC20Guild: Proposal call failed");
+            }
             emit ProposalExecuted(proposalId);
         }
     }
