@@ -127,8 +127,8 @@ module.exports = {
   etherscan: { apiKey: ETHERSCAN_API_KEY },
 
 dependencyCompiler: {
-	  paths: [
-		      '@realitio/realitio-contracts/truffle/contracts/Realitio.sol',
-		],
+      paths: [
+              '@realitio/realitio-contracts/truffle/contracts/Realitio.sol',
+        ],
 }
 };
