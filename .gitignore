@@ -18,4 +18,3 @@ cache/
 .coverage_cache/
 .repHolders.json
 .openzeppelin
-.bash_history*
