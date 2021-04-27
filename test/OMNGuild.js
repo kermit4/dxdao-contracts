@@ -42,7 +42,7 @@ contract("OMNGuild", function (accounts) {
     );
     omnGuild = await OMNGuild.new();
     realitio = await Realitio.new();
-	questionId = (await realitio.askQuestion(0,"how many tests could a test question test if a test question would test questions?",omnGuild.address,30,0,1)).receipt.logs[0].args.question_id;
+	questionId = (await realitio.askQuestion(0,"test question?",omnGuild.address,30,0,1)).receipt.logs[0].args.question_id;
    
 await realitio.submitAnswer(questionId, web3.utils.asciiToHex("filler"), 0,{value:1});
 
@@ -67,26 +67,6 @@ await realitio.submitAnswer(questionId, web3.utils.asciiToHex("filler"), 0,{valu
     
     tokenVault = await omnGuild.tokenVault();
 
-//   const proposalId = await createProposal({
-//     guild: omnGuild,
-//     to: [accounts[1]],
-//     data: [await new web3.eth.Contract(
-//       OMNGuild.abi
-//     ).methods.setAllowance(
-//       [realitio.address],
-//       ["0x359afa49"],
-//       [true]
-//     ).encodeABI()],
-//     value: [0],
-//     description: "Allow vote in voting machine",
-//     contentHash: constants.NULL_ADDRESS,
-//	 account:accounts[0]
-//   });
-//	await time.increase(time.duration.seconds(31));
-//	await omnGuild.endProposal(proposalId);
-//    genericCallData = await new web3.eth.Contract(
-  //    votingMachine.contract.abi
-  //  ).methods.vote(questionId, 1, 0, constants.NULL_ADDRESS).encodeABI();
   });
 
   describe("OMNGuild", function () {
