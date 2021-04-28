@@ -45,7 +45,9 @@ contract("OMNGuild", function(accounts) {
         );
         omnGuild = await OMNGuild.new();
         realitio = await Realitio.new();
-        questionId = (await realitio.askQuestion(0, "Is market with [questionID] valid?", omnGuild.address, 60*60*24*2, 0, 0)).receipt.logs[0].args.question_id;
+		const latest=(await time.latest()).toNumber();
+		  //function askQuestion ( uint256 template_id, string calldata question, address arbitrator, uint32 timeout, uint32 opening_ts, uint256 nonce ) external payable returns ( bytes32 );
+        questionId = (await realitio.askQuestion(0, "Is market with [questionID] valid?", omnGuild.address, 60*60*24*2, latest, 0)).receipt.logs[0].args.question_id;
 
         await realitio.submitAnswer(questionId, soliditySha3((true)), 0, {
             value: 1
