@@ -45,8 +45,8 @@ contract("OMNGuild", function(accounts) {
         );
         omnGuild = await OMNGuild.new();
         realitio = await Realitio.new();
-		const latest=(await time.latest()).toNumber();
-		  //function askQuestion ( uint256 template_id, string calldata question, address arbitrator, uint32 timeout, uint32 opening_ts, uint256 nonce ) external payable returns ( bytes32 );
+        const latest=(await time.latest()).toNumber();
+          //function askQuestion ( uint256 template_id, string calldata question, address arbitrator, uint32 timeout, uint32 opening_ts, uint256 nonce ) external payable returns ( bytes32 );
         questionId = (await realitio.askQuestion(0, "Is market with [questionID] valid?", omnGuild.address, 60*60*24*2, latest, 0)).receipt.logs[0].args.question_id;
 
         await realitio.submitAnswer(questionId, soliditySha3((true)), 0, {
@@ -56,22 +56,22 @@ contract("OMNGuild", function(accounts) {
         actionMock = await ActionMock.new();
 
         await omnGuild.initialize(
-			guildToken.address,  //  _token:
-			60*60*24*7,  //  _proposalTime:
-			130000,  //  _timeForExecution:
-			40,  //  _votesForExecution:
-			0,  //  _votesForCreation:
-			VOTE_GAS,  //  _voteGas:
-			MAX_GAS_PRICE,  //  _maxGasPrice:
-			TIMELOCK,  //  _lockTime:
-			99999,  //  _maxAmountVotes:
-			realitio.address,  //  _realitIO:
-		);
+            guildToken.address,  //  _token:
+            60*60*24*7,  //  _proposalTime:
+            130000,  //  _timeForExecution:
+            40,  //  _votesForExecution:
+            0,  //  _votesForCreation:
+            VOTE_GAS,  //  _voteGas:
+            MAX_GAS_PRICE,  //  _maxGasPrice:
+            TIMELOCK,  //  _lockTime:
+            99999,  //  _maxAmountVotes:
+            realitio.address,  //  _realitIO:
+        );
         await omnGuild.setOMNGuildConfig(
-				1000, /// _maxAmountVotes The max amount of votes allowed ot have
-				realitio.address, 
-				1000, /// _successfulVoteReward The amount of OMN tokens in wei unit to be reward to a voter after a succesful  vote
-				1000); /// _unsuccessfulVoteReward The amount of OMN tokens in wei unit to be reward to a voter after a unsuccesful vote
+                1000, /// _maxAmountVotes The max amount of votes allowed ot have
+                realitio.address, 
+                1000, /// _successfulVoteReward The amount of OMN tokens in wei unit to be reward to a voter after a succesful  vote
+                1000); /// _unsuccessfulVoteReward The amount of OMN tokens in wei unit to be reward to a voter after a unsuccesful vote
 
         tokenVault = await omnGuild.tokenVault();
 
@@ -152,8 +152,8 @@ contract("OMNGuild", function(accounts) {
             assert.equal(proposalInfo.state, constants.GuildProposalState.Executed);
             assert.equal(proposalInfo.to[0], realitio.address);
             assert.equal(proposalInfo.value[0], 0);
-			assert.equal(await realitio.isFinalized(questionId),true);
-			assert.equal(await realitio.getFinalAnswer(questionId),  soliditySha3((true)));
+            assert.equal(await realitio.isFinalized(questionId),true);
+            assert.equal(await realitio.getFinalAnswer(questionId),  soliditySha3((true)));
         });
         it("test proposal failed/ended", async function() {
             const tx = await omnGuild.createMarketValidationProposal(questionId);
