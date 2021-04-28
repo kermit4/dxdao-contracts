@@ -49,7 +49,8 @@ contract OMNGuild is ERC20Guild {
     /// Sets the call permission to arbitrate markets allowed by default and create the market question tempate in 
     /// Realit.io to be used on markets created with the guild
     /// @param _token The address of the token to be used
-    /// @param _proposalTime The minimun time for a proposal to be under votation
+    /// @param _proposalTime The minimum time for a proposal to be under votation
+    /// @param _timeForExecution The amount of time that a proposal has to be executed before being ended
     /// @param _votesForExecution The % of votes needed for a proposal to be executed based on the token total supply.
     /// 10000 == 100%, 5000 == 50% and 2500 == 25%
     /// @param _votesForCreation The amount of votes (in wei unit) needed for a proposal to be created
@@ -160,6 +161,7 @@ contract OMNGuild is ERC20Guild {
     /// @param questionId the id of the question to be validated in realitiyIo
     function createMarketValidationProposal(bytes32 questionId) public isInitialized {
         require(votesOf(msg.sender) >= getVotesForCreation(), "OMNGuild: Not enough tokens to create proposal");      
+//		require(realitIO.getOpeningTS(questionId) + 60*60*24*2 > block.timestamp); // I.B.2.d
         
         address[] memory _to = new address[](1);
         bytes[] memory _data = new bytes[](1);
@@ -184,7 +186,7 @@ contract OMNGuild is ERC20Guild {
         marketValidationProposals[questionId].marketInvalid = 
             _createProposal( _to, _data, _value, string("Market invalid"), _contentHash );
         proposalsForMarketValidation[marketValidationProposals[questionId].marketInvalid] = questionId;
-        realitIO.notifyOfArbitrationRequest(questionId, address(realitIO), 0);
+        realitIO.notifyOfArbitrationRequest(questionId, msg.sender, 0);
     }
     
     /// @dev Ends the market validation by executing the proposal with higher votes and rejecting the other

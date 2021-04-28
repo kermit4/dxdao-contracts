@@ -3,6 +3,7 @@ const constants = require("./helpers/constants");
 const OMNGuild = artifacts.require("OMNGuild");
 const Realitio = artifacts.require("Realitio");
 const ActionMock = artifacts.require("ActionMock");
+const { soliditySha3 } = require("web3-utils");
 const {
     fixSignature
 } = require("./helpers/sign");
@@ -44,18 +45,31 @@ contract("OMNGuild", function(accounts) {
         );
         omnGuild = await OMNGuild.new();
         realitio = await Realitio.new();
-        questionId = (await realitio.askQuestion(0, "test question?", omnGuild.address, 30, 0, 1)).receipt.logs[0].args.question_id;
+        questionId = (await realitio.askQuestion(0, "Is market with [questionID] valid?", omnGuild.address, 60*60*24*2, 0, 0)).receipt.logs[0].args.question_id;
 
-        await realitio.submitAnswer(questionId, web3.utils.asciiToHex("filler"), 0, {
+        await realitio.submitAnswer(questionId, soliditySha3((true)), 0, {
             value: 1
         });
 
         actionMock = await ActionMock.new();
 
         await omnGuild.initialize(
-            guildToken.address, 30, 130000, 40, 0, VOTE_GAS, MAX_GAS_PRICE, TIMELOCK, 99999, realitio.address
-        );
-        omnGuild.setOMNGuildConfig(1000, realitio.address, 1000, 1000);
+			guildToken.address,  //  _token:
+			60*60*24*7,  //  _proposalTime:
+			130000,  //  _timeForExecution:
+			40,  //  _votesForExecution:
+			0,  //  _votesForCreation:
+			VOTE_GAS,  //  _voteGas:
+			MAX_GAS_PRICE,  //  _maxGasPrice:
+			TIMELOCK,  //  _lockTime:
+			99999,  //  _maxAmountVotes:
+			realitio.address,  //  _realitIO:
+		);
+        await omnGuild.setOMNGuildConfig(
+				1000, /// _maxAmountVotes The max amount of votes allowed ot have
+				realitio.address, 
+				1000, /// _successfulVoteReward The amount of OMN tokens in wei unit to be reward to a voter after a succesful  vote
+				1000); /// _unsuccessfulVoteReward The amount of OMN tokens in wei unit to be reward to a voter after a unsuccesful vote
 
         tokenVault = await omnGuild.tokenVault();
 
@@ -115,7 +129,7 @@ contract("OMNGuild", function(accounts) {
                 proposalId: guildProposalId
             });
 
-            await time.increase(time.duration.seconds(100000));
+            await time.increase(time.duration.seconds(60*60*24*7+1000));
 
             if (constants.ARC_GAS_PRICE > 1)
                 expect(txVote.receipt.gasUsed).to.be.below(80000);
@@ -136,7 +150,8 @@ contract("OMNGuild", function(accounts) {
             assert.equal(proposalInfo.state, constants.GuildProposalState.Executed);
             assert.equal(proposalInfo.to[0], realitio.address);
             assert.equal(proposalInfo.value[0], 0);
-            await time.increase(time.duration.seconds(31));
+			assert.equal(await realitio.isFinalized(questionId),true);
+			assert.equal(await realitio.getFinalAnswer(questionId),  soliditySha3((true)));
         });
         it("test proposal failed/ended", async function() {
             const tx = await omnGuild.createMarketValidationProposal(questionId);
@@ -149,7 +164,7 @@ contract("OMNGuild", function(accounts) {
                 votes, {
                     from: accounts[4]
                 });
-            await time.increase(time.duration.seconds(200000));
+            await time.increase(time.duration.seconds(60*60*24*7+200000));
             const receipt = await omnGuild.endMarketValidationProposal(questionId);
             expectEvent(receipt, "ProposalEnded", {
                 proposalId: guildProposalId
@@ -163,7 +178,7 @@ contract("OMNGuild", function(accounts) {
 
             const guildProposalId = tx.logs[0].args.proposalId;
 
-            await time.increase(time.duration.seconds(100000));
+            await time.increase(time.duration.seconds(60*60*24*7+100000));
             const receipt = await omnGuild.endMarketValidationProposal(questionId);
             expectEvent(receipt, "ProposalRejected", {
                 proposalId: guildProposalId
