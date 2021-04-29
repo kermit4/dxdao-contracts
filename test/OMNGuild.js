@@ -28,7 +28,7 @@ contract("OMNGuild", function(accounts) {
     const TIMELOCK = new BN("60");
     const VOTE_GAS = new BN("50000"); // 50k
     const MAX_GAS_PRICE = new BN("8000000000"); // 8 gwei
-	const OMN_REWARD = 6;
+    const OMN_REWARD = 6;
 
     let actionMock,
         guildToken,
@@ -45,7 +45,7 @@ contract("OMNGuild", function(accounts) {
             accounts.slice(0, 5), [0, 50, 150, 150, 200]
         );
         omnGuild = await OMNGuild.new();
-		await guildToken.transfer(omnGuild.address, 50, { from: accounts[2] });
+        await guildToken.transfer(omnGuild.address, 50, { from: accounts[2] });
 
         // I.B.1.a
         realitio = await Realitio.new();
@@ -221,7 +221,7 @@ contract("OMNGuild", function(accounts) {
                 proposalId: marketValidationProposalValid
             });
             await expectRevert(
-				omnGuild.claimMarketValidationVoteRewards([marketValidationProposalValid],accounts[4]),
+                omnGuild.claimMarketValidationVoteRewards([marketValidationProposalValid],accounts[4]),
                 "OMNGuild: Proposal to claim should be executed or rejected"
             );
 
@@ -235,11 +235,11 @@ contract("OMNGuild", function(accounts) {
             assert.equal(await realitio.isFinalized(questionId),true);
             assert.equal(await realitio.getFinalAnswer(questionId),  soliditySha3((true)));
 
-			assert.equal(await guildToken.balanceOf(accounts[4]),0);
-			await omnGuild.claimMarketValidationVoteRewards([marketValidationProposalValid],accounts[4]);
-			assert.equal(await guildToken.balanceOf(accounts[4]),2*OMN_REWARD); // I.B.3.d.i.3
+            assert.equal(await guildToken.balanceOf(accounts[4]),0);
+            await omnGuild.claimMarketValidationVoteRewards([marketValidationProposalValid],accounts[4]);
+            assert.equal(await guildToken.balanceOf(accounts[4]),2*OMN_REWARD); // I.B.3.d.i.3
             await expectRevert(
-				omnGuild.claimMarketValidationVoteRewards([marketValidationProposalValid],accounts[4]),
+                omnGuild.claimMarketValidationVoteRewards([marketValidationProposalValid],accounts[4]),
                 "OMNGuild: Vote reward already claimed"
             );
         });
@@ -266,7 +266,7 @@ contract("OMNGuild", function(accounts) {
                 proposalId: marketValidationProposalInvalid
             });
             await expectRevert(
-				omnGuild.claimMarketValidationVoteRewards([marketValidationProposalInvalid],accounts[4]),
+                omnGuild.claimMarketValidationVoteRewards([marketValidationProposalInvalid],accounts[4]),
                 "OMNGuild: Proposal to claim should be executed or rejected"
             );
 
@@ -278,13 +278,26 @@ contract("OMNGuild", function(accounts) {
             });
             assert.equal(await realitio.isFinalized(questionId),true);
             assert.equal(await realitio.getFinalAnswer(questionId),  soliditySha3((true)));
-			assert.equal(await guildToken.balanceOf(accounts[4]),0);
-			await omnGuild.claimMarketValidationVoteRewards([marketValidationProposalInvalid],accounts[4]);
-			assert.equal(await guildToken.balanceOf(accounts[4]),OMN_REWARD); // I.B.3.d.i.3
+            assert.equal(await guildToken.balanceOf(accounts[4]),0);
+            await omnGuild.claimMarketValidationVoteRewards([marketValidationProposalInvalid],accounts[4]);
+            assert.equal(await guildToken.balanceOf(accounts[4]),OMN_REWARD); // I.B.3.d.i.3
             await expectRevert(
-				omnGuild.claimMarketValidationVoteRewards([marketValidationProposalInvalid],accounts[4]),
+                omnGuild.claimMarketValidationVoteRewards([marketValidationProposalInvalid],accounts[4]),
                 "OMNGuild: Vote reward already claimed"
             );
+        });
+        it("test setVotes prevents changing vote", async function() {
+            const tx = await omnGuild.createMarketValidationProposal(questionId);  // I.B.2.b
+
+            const marketValidationProposalValid = tx.logs[0].args.proposalId;
+            const marketValidationProposalInvalid = tx.logs[2].args.proposalId;
+
+            await expectRevert (omnGuild.setVotes(
+                    [marketValidationProposalValid,
+                    marketValidationProposalInvalid],
+                    [10,9], 
+                    { from: accounts[3] }),
+                "OMNGuild: Already voted");
         });
     });
 });

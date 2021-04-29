@@ -297,7 +297,8 @@ contract OMNGuild is ERC20Guild {
                 votesOfAt(msg.sender, proposals[proposalIds[i]].snapshotId) >=  amounts[i],
                 "ERC20Guild: Invalid amount"
             );
-            require(proposals[proposalIds[i]].votes[msg.sender] == 0, "OMNGuild: Already voted");
+			require(proposals[marketValidationProposals[proposalsForMarketValidation[proposalIds[i]]].marketValid].votes[msg.sender] == 0, "OMNGuild: Already voted");
+			require(proposals[marketValidationProposals[proposalsForMarketValidation[proposalIds[i]]].marketInvalid].votes[msg.sender]  == 0, "OMNGuild: Already voted");
             require(amounts[i] <= maxAmountVotes, "OMNGuild: Cant vote with more votes than max amount of votes");
             if (amounts[i] > 0) {
                 positiveVotesCount[proposalIds[i]] = positiveVotesCount[proposalIds[i]].add(1);
