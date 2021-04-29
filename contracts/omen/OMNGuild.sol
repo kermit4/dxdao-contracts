@@ -248,9 +248,6 @@ contract OMNGuild is ERC20Guild {
             proposals[proposalIds[i]].state == ProposalState.Executed && 
             proposals[proposalIds[i]].votes[voter] > 0
           ) {
-                console.log("positiveVotesCount");
-                console.logBytes32(proposalIds[i]);
-                console.log(positiveVotesCount[proposalIds[i]]);
             reward = reward.add(successfulVoteReward.div(positiveVotesCount[proposalIds[i]]));
           // If proposal was rejected and vote was positive the vote was for a unsuccesful action
           } else if (
@@ -265,9 +262,6 @@ contract OMNGuild is ERC20Guild {
       }
       
       // Send the total reward
-      console.log("reward");
-      console.log(reward);
-      console.logAddress(voter);
       _sendTokenReward(voter, reward);
     }
     
@@ -284,9 +278,6 @@ contract OMNGuild is ERC20Guild {
         require(amount <= maxAmountVotes, "OMNGuild: Cant vote with more votes than max amount of votes");
         if (amount > 0) {
           positiveVotesCount[proposalId] = positiveVotesCount[proposalId].add(1);
-                console.log("adding 1 to ");
-                console.logBytes32(proposalId);
-                console.log(positiveVotesCount[proposalId]);
         }
         _setVote(msg.sender, proposalId, amount);
         _refundVote(msg.sender);
@@ -309,9 +300,6 @@ contract OMNGuild is ERC20Guild {
             require(amounts[i] <= maxAmountVotes, "OMNGuild: Cant vote with more votes than max amount of votes");
             if (amounts[i] > 0) {
                 positiveVotesCount[proposalIds[i]] = positiveVotesCount[proposalIds[i]].add(1);
-                console.log("adding 1 to ");
-                console.logBytes32(proposalIds[i]);
-                console.log(positiveVotesCount[proposalIds[i]]);
             }
             _setVote(msg.sender, proposalIds[i], amounts[i]);
         }

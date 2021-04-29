@@ -218,34 +218,24 @@ contract("OMNGuild", function(accounts) {
             expectEvent(txVote, "VoteAdded", {
                 proposalId: guildProposalId
             });
-			console.log("h0");
             await expectRevert(
 				omnGuild.claimMarketValidationVoteRewards([guildProposalId],accounts[4]),
                 "OMNGuild: Proposal to claim should be executed or rejected"
             );
-			console.log("h1");
 
             await time.increase(time.duration.seconds(60*60*24*7+1000));
 
-			console.log("h2");
             const receipt = await omnGuild.endMarketValidationProposal(questionId);
             expectEvent(receipt, "ProposalExecuted", {
                 proposalId: guildProposalId
             });
-			console.log("h3");
 			assert.equal(await guildToken.balanceOf(accounts[4]),0);
-			console.log("h4");
-			console.log(await guildToken.balanceOf(omnGuild.address));
 			await omnGuild.claimMarketValidationVoteRewards([guildProposalId],accounts[4]);
-			console.log("h5");
-		  console.log(accounts[4]);
-			console.log(await guildToken.balanceOf(omnGuild.address));
 			assert.equal(await guildToken.balanceOf(accounts[4]),12);
             await expectRevert(
 				omnGuild.claimMarketValidationVoteRewards([guildProposalId],accounts[4]),
                 "OMNGuild: Vote reward already claimed"
             );
-			console.log("h6");
         });
     });
 });
