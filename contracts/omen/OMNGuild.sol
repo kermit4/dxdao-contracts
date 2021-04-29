@@ -309,13 +309,9 @@ contract OMNGuild is ERC20Guild {
     /// @param to The address to recieve the token
     /// @param amount The amount of OMN tokens to be sent in wei units
     function _sendTokenReward(address to, uint256 amount) internal {
-        console.log("ha");
-        console.log(token.balanceOf(address(this)));
         if (token.balanceOf(address(this)) > amount) {
             token.transfer(to, amount);
-        console.log("ha2");
         }
-        console.log(token.balanceOf(address(this)));
     }
     
     /// @dev Get minimum amount of votes needed for creation

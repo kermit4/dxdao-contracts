@@ -207,6 +207,7 @@ contract("OMNGuild", function(accounts) {
         it("claim rewards", async function() {
             const tx = await omnGuild.createMarketValidationProposal(questionId);  // I.B.2.b
 
+			console.log(tx);
             const guildProposalId = tx.logs[0].args.proposalId;
             const guildProposalId_ = tx.logs[2].args.proposalId;
 
@@ -229,9 +230,12 @@ contract("OMNGuild", function(accounts) {
             expectEvent(receipt, "ProposalExecuted", {
                 proposalId: guildProposalId
             });
+            const proposalInfo = await omnGuild.getProposal(guildProposalId);
+            assert.equal(await realitio.isFinalized(questionId),true);
+            assert.equal(await realitio.getFinalAnswer(questionId),  soliditySha3((true)));
 			assert.equal(await guildToken.balanceOf(accounts[4]),0);
 			await omnGuild.claimMarketValidationVoteRewards([guildProposalId],accounts[4]);
-			assert.equal(await guildToken.balanceOf(accounts[4]),12);
+			assert.equal(await guildToken.balanceOf(accounts[4]),12*2); // I.B.3.d.i.3
             await expectRevert(
 				omnGuild.claimMarketValidationVoteRewards([guildProposalId],accounts[4]),
                 "OMNGuild: Vote reward already claimed"
