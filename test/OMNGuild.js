@@ -286,12 +286,24 @@ contract("OMNGuild", function(accounts) {
                 "OMNGuild: Vote reward already claimed"
             );
         });
-        it("test setVotes prevents changing vote", async function() {
+        it("test setVotes prevents voting twice", async function() {
             const tx = await omnGuild.createMarketValidationProposal(questionId);  // I.B.2.b
 
             const marketValidationProposalValid = tx.logs[0].args.proposalId;
             const marketValidationProposalInvalid = tx.logs[2].args.proposalId;
 
+            await expectRevert (omnGuild.setVotes(
+                    [marketValidationProposalValid,
+                    marketValidationProposalValid],
+                    [10,9], 
+                    { from: accounts[3] }),
+                "OMNGuild: Already voted");
+        });
+        it("test setVotes prevents changing vote", async function() {
+            const tx = await omnGuild.createMarketValidationProposal(questionId);  // I.B.2.b
+
+            const marketValidationProposalValid = tx.logs[0].args.proposalId;
+            const marketValidationProposalInvalid = tx.logs[2].args.proposalId;
             await expectRevert (omnGuild.setVotes(
                     [marketValidationProposalValid,
                     marketValidationProposalInvalid],
