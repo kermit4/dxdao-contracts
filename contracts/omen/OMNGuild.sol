@@ -9,7 +9,7 @@ import "../realitio/IRealitio.sol";
 /// @title OMNGuild - OMEN Token ERC20Guild
 /// The OMN guild will use the OMN token for governance, having to lock the tokens, and needing a minimum amount of 
 /// tokens locked to create proposals.
-/// The guild will be used for OMN token governance and to arbitrate markets validation in omen, using Realit.io
+/// The guild will be used for OMN token governance and to arbitrate markets validation in omen, using realit.io
 /// boolean question markets "Is market MARKET_ID valid?".
 /// The guild will be summoned to arbitrate a market validation if required.
 /// The voters who vote in market validation proposals will recieve a vote reward.
@@ -19,24 +19,24 @@ contract OMNGuild is ERC20Guild {
     // The max amount of votes that can de used in a proposal
     uint256 public maxAmountVotes;
     
-    // The address of the Realit.io smart contract
+    // The address of the realit.io smart contract
     IRealitio public realitIO;
     
-    // The function signature of function to be exeucted by the guild to resolve a question in Realit.io
+    // The function signature of function to be exeucted by the guild to resolve a question in realit.io
     bytes4 public submitAnswerByArbitratorSignature;
     
     // This amount of OMN tokens to be distributed among voters depending on their vote decision and amount
     uint256 public successfulVoteReward;
     uint256 public unsuccessfulVoteReward;
     
-    // Realit.io Question IDs => Market validation proposals
+    // realit.io Question IDs => Market validation proposals
     struct MarketValidationProposal {
       bytes32 marketValid;
       bytes32 marketInvalid;
     }
     mapping(bytes32 => MarketValidationProposal) public marketValidationProposals;
     
-    // Market validation proposal ids => Realit.io Question IDs
+    // Market validation proposal ids => realit.io Question IDs
     mapping(bytes32 => bytes32) public proposalsForMarketValidation;
 
     // Saves which accounts claimed their market validation vote rewards
@@ -47,7 +47,7 @@ contract OMNGuild is ERC20Guild {
 
     /// @dev Initilizer
     /// Sets the call permission to arbitrate markets allowed by default and create the market question tempate in 
-    /// Realit.io to be used on markets created with the guild
+    /// realit.io to be used on markets created with the guild
     /// @param _token The address of the token to be used
     /// @param _proposalTime The minimum time for a proposal to be under votation
     /// @param _timeForExecution The amount of time that a proposal has to be executed before being ended
@@ -271,6 +271,7 @@ contract OMNGuild is ERC20Guild {
             votesOfAt(msg.sender, proposals[proposalId].snapshotId) >=  amount,
             "ERC20Guild: Invalid amount"
         );
+
         require(proposals[proposalId].votes[msg.sender] == 0, "OMNGuild: Already voted");
         require(amount <= maxAmountVotes, "OMNGuild: Cant vote with more votes than max amount of votes");
         if (amount > 0) {
