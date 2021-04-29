@@ -45,12 +45,12 @@ contract("OMNGuild", function(accounts) {
         );
         omnGuild = await OMNGuild.new();
 
-		// I.B.1.a
+        // I.B.1.a
         realitio = await Realitio.new();
         const latest=(await time.latest()).toNumber();
         questionId = (await realitio.askQuestion(0 /* template_id */ , "Is market with [questionID] valid?", omnGuild.address, 60*60*24*2 /* timeout, */ , latest /* opening_ts */ , 0 /* nonce */ )).receipt.logs[0].args.question_id;
 
-		// I.B.1.b
+        // I.B.1.b
         await realitio.submitAnswer(questionId, soliditySha3((true)), 0, {
             value: 1
         });
@@ -193,7 +193,7 @@ contract("OMNGuild", function(accounts) {
                 });
 
             await expectRevert(
-				omnGuild.setVote(
+                omnGuild.setVote(
                 guildProposalId_,
                 1, {
                     from: accounts[4]
