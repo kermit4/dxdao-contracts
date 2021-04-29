@@ -41,9 +41,10 @@ contract("OMNGuild", function(accounts) {
 
     beforeEach(async function() {
         guildToken = await createAndSetupGuildToken(
-            accounts.slice(0, 5), [0, 50, 100, 150, 200]
+            accounts.slice(0, 5), [0, 50, 150, 150, 200]
         );
         omnGuild = await OMNGuild.new();
+		await guildToken.transfer(omnGuild.address, 50, { from: accounts[2] });
 
         // I.B.1.a
         realitio = await Realitio.new();
@@ -74,10 +75,10 @@ contract("OMNGuild", function(accounts) {
         );
 
         await omnGuild.setOMNGuildConfig(
-                1000, /// _maxAmountVotes The max amount of votes allowed ot have
+                1100, /// _maxAmountVotes The max amount of votes allowed ot have
                 realitio.address, 
-                1000, /// _successfulVoteReward The amount of OMN tokens in wei unit to be reward to a voter after a succesful  vote
-                1000); /// _unsuccessfulVoteReward The amount of OMN tokens in wei unit to be reward to a voter after a unsuccesful vote
+                12, /// _successfulVoteReward The amount of OMN tokens in wei unit to be reward to a voter after a succesful  vote
+                13); /// _unsuccessfulVoteReward The amount of OMN tokens in wei unit to be reward to a voter after a unsuccesful vote
 
         tokenVault = await omnGuild.tokenVault();
 
@@ -146,6 +147,7 @@ contract("OMNGuild", function(accounts) {
             assert.equal(await realitio.isFinalized(questionId),true);
             assert.equal(await realitio.getFinalAnswer(questionId),  soliditySha3((true)));
         });
+
         it("test proposal failed/ended", async function() {
             const tx = await omnGuild.createMarketValidationProposal(questionId);
 
@@ -200,6 +202,50 @@ contract("OMNGuild", function(accounts) {
                 }),
                 "OMNGuild: Already voted"
             );
+        });
+
+        it("claim rewards", async function() {
+            const tx = await omnGuild.createMarketValidationProposal(questionId);  // I.B.2.b
+
+            const guildProposalId = tx.logs[0].args.proposalId;
+            const guildProposalId_ = tx.logs[2].args.proposalId;
+
+            const txVote = await omnGuild.setVote(
+                guildProposalId,
+                10, {
+                    from: accounts[4]
+                });
+            expectEvent(txVote, "VoteAdded", {
+                proposalId: guildProposalId
+            });
+			console.log("h0");
+            await expectRevert(
+				omnGuild.claimMarketValidationVoteRewards([guildProposalId],accounts[4]),
+                "OMNGuild: Proposal to claim should be executed or rejected"
+            );
+			console.log("h1");
+
+            await time.increase(time.duration.seconds(60*60*24*7+1000));
+
+			console.log("h2");
+            const receipt = await omnGuild.endMarketValidationProposal(questionId);
+            expectEvent(receipt, "ProposalExecuted", {
+                proposalId: guildProposalId
+            });
+			console.log("h3");
+			assert.equal(await guildToken.balanceOf(accounts[4]),0);
+			console.log("h4");
+			console.log(await guildToken.balanceOf(omnGuild.address));
+			await omnGuild.claimMarketValidationVoteRewards([guildProposalId],accounts[4]);
+			console.log("h5");
+		  console.log(accounts[4]);
+			console.log(await guildToken.balanceOf(omnGuild.address));
+			assert.equal(await guildToken.balanceOf(accounts[4]),12);
+            await expectRevert(
+				omnGuild.claimMarketValidationVoteRewards([guildProposalId],accounts[4]),
+                "OMNGuild: Vote reward already claimed"
+            );
+			console.log("h6");
         });
     });
 });

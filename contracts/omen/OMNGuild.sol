@@ -6,6 +6,8 @@ import "../erc20guild/ERC20Guild.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "../realitio/IRealitio.sol";
 
+import "hardhat/console.sol";
+
 /// @title OMNGuild - OMEN Token ERC20Guild
 /// The OMN guild will use the OMN token for governance, having to lock the tokens, and needing a minimum amount of 
 /// tokens locked to create proposals.
@@ -246,13 +248,16 @@ contract OMNGuild is ERC20Guild {
             proposals[proposalIds[i]].state == ProposalState.Executed && 
             proposals[proposalIds[i]].votes[voter] > 0
           ) {
-            reward.add(successfulVoteReward.div(positiveVotesCount[proposalIds[i]]));
+                console.log("positiveVotesCount");
+                console.logBytes32(proposalIds[i]);
+                console.log(positiveVotesCount[proposalIds[i]]);
+            reward = reward.add(successfulVoteReward.div(positiveVotesCount[proposalIds[i]]));
           // If proposal was rejected and vote was positive the vote was for a unsuccesful action
           } else if (
             proposals[proposalIds[i]].state == ProposalState.Rejected && 
             proposals[proposalIds[i]].votes[voter] > 0
           ) {
-            reward.add(unsuccessfulVoteReward.div(positiveVotesCount[proposalIds[i]]));
+            reward = reward.add(unsuccessfulVoteReward.div(positiveVotesCount[proposalIds[i]]));
           }
           
           // Mark reward as claimed
@@ -260,6 +265,9 @@ contract OMNGuild is ERC20Guild {
       }
       
       // Send the total reward
+      console.log("reward");
+      console.log(reward);
+      console.logAddress(voter);
       _sendTokenReward(voter, reward);
     }
     
@@ -275,7 +283,10 @@ contract OMNGuild is ERC20Guild {
         require(proposals[proposalId].votes[msg.sender] == 0, "OMNGuild: Already voted");
         require(amount <= maxAmountVotes, "OMNGuild: Cant vote with more votes than max amount of votes");
         if (amount > 0) {
-          positiveVotesCount[proposalId].add(1);
+          positiveVotesCount[proposalId] = positiveVotesCount[proposalId].add(1);
+                console.log("adding 1 to ");
+                console.logBytes32(proposalId);
+                console.log(positiveVotesCount[proposalId]);
         }
         _setVote(msg.sender, proposalId, amount);
         _refundVote(msg.sender);
@@ -297,7 +308,10 @@ contract OMNGuild is ERC20Guild {
             require(proposals[proposalIds[i]].votes[msg.sender] == 0, "OMNGuild: Already voted");
             require(amounts[i] <= maxAmountVotes, "OMNGuild: Cant vote with more votes than max amount of votes");
             if (amounts[i] > 0) {
-                positiveVotesCount[proposalIds[i]].add(1);
+                positiveVotesCount[proposalIds[i]] = positiveVotesCount[proposalIds[i]].add(1);
+                console.log("adding 1 to ");
+                console.logBytes32(proposalIds[i]);
+                console.log(positiveVotesCount[proposalIds[i]]);
             }
             _setVote(msg.sender, proposalIds[i], amounts[i]);
         }
@@ -307,9 +321,13 @@ contract OMNGuild is ERC20Guild {
     /// @param to The address to recieve the token
     /// @param amount The amount of OMN tokens to be sent in wei units
     function _sendTokenReward(address to, uint256 amount) internal {
+        console.log("ha");
+        console.log(token.balanceOf(address(this)));
         if (token.balanceOf(address(this)) > amount) {
             token.transfer(to, amount);
+        console.log("ha2");
         }
+        console.log(token.balanceOf(address(this)));
     }
     
     /// @dev Get minimum amount of votes needed for creation
