@@ -42,7 +42,7 @@ contract("OMNGuild", function(accounts) {
 
     beforeEach(async function() {
         guildToken = await createAndSetupGuildToken(
-            accounts.slice(0, 5), [0, 50, 150, 150, 200]
+            accounts.slice(0, 5), [100, 50, 150, 150, 200]
         );
         omnGuild = await OMNGuild.new();
         await guildToken.transfer(omnGuild.address, 50, { from: accounts[2] });
@@ -67,7 +67,7 @@ contract("OMNGuild", function(accounts) {
             60*60*24*7,  //  _proposalTime:
             130000,  //  _timeForExecution:
             40,  //  _votesForExecution:
-            0,  //  _votesForCreation:
+            10,  //  _votesForCreation:
             VOTE_GAS,  //  _voteGas:
             MAX_GAS_PRICE,  //  _maxGasPrice:
             TIMELOCK,  //  _lockTime:
@@ -84,11 +84,13 @@ contract("OMNGuild", function(accounts) {
 
         tokenVault = await omnGuild.tokenVault();
 
+        await guildToken.approve(tokenVault, 10);
         await guildToken.approve(tokenVault, 50, { from: accounts[1] });
         await guildToken.approve(tokenVault, 100, { from: accounts[2] });
         await guildToken.approve(tokenVault, 150, { from: accounts[3] });
         await guildToken.approve(tokenVault, 200, { from: accounts[4] });
 
+        await omnGuild.lockTokens(10);
         await omnGuild.lockTokens(50, { from: accounts[1] });
         await omnGuild.lockTokens(100, { from: accounts[2] });
         await omnGuild.lockTokens(150, { from: accounts[3] });
@@ -311,5 +313,7 @@ contract("OMNGuild", function(accounts) {
                     { from: accounts[3] }),
                 "OMNGuild: Already voted");
         });
+//        it("test createProprosals", async function() {
+
     });
 });
