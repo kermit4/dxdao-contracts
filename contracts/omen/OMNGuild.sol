@@ -311,9 +311,8 @@ contract OMNGuild is ERC20Guild {
     /// @param to The address to recieve the token
     /// @param amount The amount of OMN tokens to be sent in wei units
     function _sendTokenReward(address to, uint256 amount) internal {
-        if (token.balanceOf(address(this)) > amount) { // Is silent failure intentional here?, when the calling function has already marked the rewards as claimed so they can't try again later.
-            token.transfer(to, amount);
-        }
+        require(token.balanceOf(address(this)) > amount);
+		token.transfer(to, amount);
     }
     
     /// @dev Get minimum amount of votes needed for creation
