@@ -106,6 +106,7 @@ contract OMNGuild is ERC20Guild {
         uint256 _successfulVoteReward,
         uint256 _unsuccessfulVoteReward
     ) public isInitialized {
+		require(msg.sender == address(this), "Only the OMEN Guild can configure the guild");
         realitIO = _realitIO;
         maxAmountVotes = _maxAmountVotes;
         successfulVoteReward = _successfulVoteReward;
