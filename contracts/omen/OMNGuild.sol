@@ -104,7 +104,7 @@ contract OMNGuild is ERC20Guild {
         uint256 _successfulVoteReward,
         uint256 _unsuccessfulVoteReward
     ) public isInitialized {
-		require(msg.sender == address(this), "Only the OMEN Guild can configure the guild");
+        require(msg.sender == address(this), "Only the OMEN Guild can configure the guild");
         realitIO = _realitIO;
         maxAmountVotes = _maxAmountVotes;
         successfulVoteReward = _successfulVoteReward;
@@ -273,6 +273,7 @@ contract OMNGuild is ERC20Guild {
             "ERC20Guild: Invalid amount"
         );
 
+        require(proposals[proposalIds[i]].votes[msg.sender] == 0, "OMNGuild: Already voted");
         require(proposals[marketValidationProposals[proposalsForMarketValidation[proposalId]].marketValid].votes[msg.sender] == 0, "OMNGuild: Already voted");
         require(proposals[marketValidationProposals[proposalsForMarketValidation[proposalId]].marketInvalid].votes[msg.sender]  == 0, "OMNGuild: Already voted");
         require(amount <= maxAmountVotes, "OMNGuild: Cant vote with more votes than max amount of votes");
@@ -296,6 +297,7 @@ contract OMNGuild is ERC20Guild {
                 votesOfAt(msg.sender, proposals[proposalIds[i]].snapshotId) >=  amounts[i],
                 "ERC20Guild: Invalid amount"
             );
+            require(proposals[proposalIds[i]].votes[msg.sender] == 0, "OMNGuild: Already voted");
             require(proposals[marketValidationProposals[proposalsForMarketValidation[proposalIds[i]]].marketValid].votes[msg.sender] == 0, "OMNGuild: Already voted");
             require(proposals[marketValidationProposals[proposalsForMarketValidation[proposalIds[i]]].marketInvalid].votes[msg.sender]  == 0, "OMNGuild: Already voted");
             require(amounts[i] <= maxAmountVotes, "OMNGuild: Cant vote with more votes than max amount of votes");
