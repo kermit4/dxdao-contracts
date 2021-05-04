@@ -88,7 +88,7 @@ contract OMNGuild is ERC20Guild {
           keccak256("submitAnswerByArbitrator(bytes32,bytes32,address)")
         );
         callPermissions[address(realitIO)][submitAnswerByArbitratorSignature] = true;
-        callPermissions[address(this)][bytes4(keccak256("setOMNGuildConfig(uint256,address,uint256,uint256"))] = true;
+        callPermissions[address(this)][bytes4(keccak256("setOMNGuildConfig(uint256,address,uint256,uint256)"))] = true;
     }
     
     /// @dev Set OMNGuild specific parameters
@@ -162,7 +162,7 @@ contract OMNGuild is ERC20Guild {
     /// @param questionId the id of the question to be validated in realitiyIo
     function createMarketValidationProposal(bytes32 questionId) public isInitialized {
         require(votesOf(msg.sender) >= getVotesForCreation(), "OMNGuild: Not enough tokens to create proposal");   // I.B.2.c
-        require(realitIO.getOpeningTS(questionId) + 60*60*24*2 > block.timestamp); // I.B.2.d
+        require(realitIO.getOpeningTS(questionId) + 60*60*24*2 > block.timestamp, "Realit.io question is over 2 days old"); // I.B.2.d
         
         address[] memory _to = new address[](1);
         bytes[] memory _data = new bytes[](1);
@@ -273,9 +273,9 @@ contract OMNGuild is ERC20Guild {
             "ERC20Guild: Invalid amount"
         );
 
-        require(proposals[proposalIds[i]].votes[msg.sender] == 0, "OMNGuild: Already voted");
-        require(proposals[marketValidationProposals[proposalsForMarketValidation[proposalId]].marketValid].votes[msg.sender] == 0, "OMNGuild: Already voted");
-        require(proposals[marketValidationProposals[proposalsForMarketValidation[proposalId]].marketInvalid].votes[msg.sender]  == 0, "OMNGuild: Already voted");
+        require(proposals[proposalId].votes[msg.sender] == 0, "OMNGuild: Already voted1");
+        require(proposals[marketValidationProposals[proposalsForMarketValidation[proposalId]].marketValid].votes[msg.sender] == 0, "OMNGuild: Already voted2");
+        require(proposals[marketValidationProposals[proposalsForMarketValidation[proposalId]].marketInvalid].votes[msg.sender]  == 0, "OMNGuild: Already voted3");
         require(amount <= maxAmountVotes, "OMNGuild: Cant vote with more votes than max amount of votes");
         if (amount > 0) {
           positiveVotesCount[proposalId] = positiveVotesCount[proposalId].add(1);
@@ -297,9 +297,9 @@ contract OMNGuild is ERC20Guild {
                 votesOfAt(msg.sender, proposals[proposalIds[i]].snapshotId) >=  amounts[i],
                 "ERC20Guild: Invalid amount"
             );
-            require(proposals[proposalIds[i]].votes[msg.sender] == 0, "OMNGuild: Already voted");
-            require(proposals[marketValidationProposals[proposalsForMarketValidation[proposalIds[i]]].marketValid].votes[msg.sender] == 0, "OMNGuild: Already voted");
-            require(proposals[marketValidationProposals[proposalsForMarketValidation[proposalIds[i]]].marketInvalid].votes[msg.sender]  == 0, "OMNGuild: Already voted");
+            require(proposals[proposalIds[i]].votes[msg.sender] == 0, "OMNGuild: Already voted4");
+            require(proposals[marketValidationProposals[proposalsForMarketValidation[proposalIds[i]]].marketValid].votes[msg.sender] == 0, "OMNGuild: Already voted5");
+            require(proposals[marketValidationProposals[proposalsForMarketValidation[proposalIds[i]]].marketInvalid].votes[msg.sender]  == 0, "OMNGuild: Already voted6");
             require(amounts[i] <= maxAmountVotes, "OMNGuild: Cant vote with more votes than max amount of votes");
             if (amounts[i] > 0) {
                 positiveVotesCount[proposalIds[i]] = positiveVotesCount[proposalIds[i]].add(1);
@@ -312,7 +312,7 @@ contract OMNGuild is ERC20Guild {
     /// @param to The address to recieve the token
     /// @param amount The amount of OMN tokens to be sent in wei units
     function _sendTokenReward(address to, uint256 amount) internal {
-        require(token.balanceOf(address(this)) > amount);
+        require(token.balanceOf(address(this)) > amount, "Rewards are temporarily unavailable. Please try again later.");
         token.transfer(to, amount);
     }
     

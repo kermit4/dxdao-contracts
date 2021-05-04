@@ -2,7 +2,6 @@ import * as helpers from "./helpers";
 const constants = require("./helpers/constants");
 const OMNGuild = artifacts.require("OMNGuild");
 const Realitio = artifacts.require("Realitio");
-const ActionMock = artifacts.require("ActionMock");
 const { soliditySha3 } = require("web3-utils");
 const {
     fixSignature
@@ -18,6 +17,7 @@ const {
 } = require("@openzeppelin/test-helpers");
 const {
     createAndSetupGuildToken,
+    createProposal,
 } = require("./helpers/guild");
 
 require("chai").should();
@@ -30,8 +30,7 @@ contract("OMNGuild", function(accounts) {
     const MAX_GAS_PRICE = new BN("8000000000"); // 8 gwei
     const OMN_REWARD = 6;
 
-    let actionMock,
-        guildToken,
+    let guildToken,
         omnGuild,
         realitio,
         tokenVault,
@@ -45,22 +44,8 @@ contract("OMNGuild", function(accounts) {
             accounts.slice(0, 5), [100, 50, 150, 150, 200]
         );
         omnGuild = await OMNGuild.new();
-        await guildToken.transfer(omnGuild.address, 50, { from: accounts[2] });
-
-        // I.B.1.a
         realitio = await Realitio.new();
-        const latest=(await time.latest()).toNumber();
-        questionId = (await realitio.askQuestion(0 /* template_id */ , "Is market with [questionID] valid?", omnGuild.address, 60*60*24*2 /* timeout, */ , latest /* opening_ts */ , 0 /* nonce */ )).receipt.logs[0].args.question_id;
-
-        // I.B.1.b
-        await realitio.submitAnswer(questionId, soliditySha3((true)), 0, {
-            value: 1
-        });
-        await realitio.submitAnswer(questionId, soliditySha3((false)), 0, {
-            value: 2
-        });
-
-        actionMock = await ActionMock.new();
+        await guildToken.transfer(omnGuild.address, 50, { from: accounts[2] });
 
         await omnGuild.initialize(
             guildToken.address,  //  _token:
@@ -76,27 +61,55 @@ contract("OMNGuild", function(accounts) {
         );
 
 
-        await omnGuild.setOMNGuildConfig(
-                1100, /// _maxAmountVotes The max amount of votes allowed ot have
-                realitio.address, 
-                2*OMN_REWARD, /// _successfulVoteReward The amount of OMN tokens in wei unit to be reward to a voter after a successful  vote
-                OMN_REWARD); /// _unsuccessfulVoteReward The amount of OMN tokens in wei unit to be reward to a voter after a unsuccessful vote
-
         tokenVault = await omnGuild.tokenVault();
 
-        await guildToken.approve(tokenVault, 10);
+        await guildToken.approve(tokenVault, 60);
         await guildToken.approve(tokenVault, 50, { from: accounts[1] });
         await guildToken.approve(tokenVault, 100, { from: accounts[2] });
         await guildToken.approve(tokenVault, 150, { from: accounts[3] });
         await guildToken.approve(tokenVault, 200, { from: accounts[4] });
 
-        await omnGuild.lockTokens(10);
+        await omnGuild.lockTokens(60);
         await omnGuild.lockTokens(50, { from: accounts[1] });
         await omnGuild.lockTokens(100, { from: accounts[2] });
         await omnGuild.lockTokens(150, { from: accounts[3] });
         await omnGuild.lockTokens(200, { from: accounts[4] });
 
         tokenVault = await omnGuild.tokenVault();
+        
+        const data = await new web3.eth.Contract(
+              OMNGuild.abi
+            ).methods.setOMNGuildConfig(
+                1100, /// _maxAmountVotes The max amount of votes allowed ot have
+                realitio.address, 
+                2*OMN_REWARD, /// _successfulVoteReward The amount of OMN tokens in wei unit to be reward to a voter after a successful  vote
+                OMN_REWARD /// _unsuccessfulVoteReward The amount of OMN tokens in wei unit to be reward to a voter after a unsuccessful vote
+              ).encodeABI()
+        const guildProposalId = await createProposal({
+          guild: omnGuild,
+          to: [omnGuild.address],
+          data: [ data ],
+          value: [0],
+          description: "setOMNGuildConfig description",
+          contentHash: constants.NULL_ADDRESS,
+          account: accounts[0],
+        });
+
+        await time.increase(time.duration.seconds(60*60*24*7+1000));
+
+        await omnGuild.endProposal(guildProposalId);
+
+        // I.B.1.a
+        const latest=(await time.latest()).toNumber();
+        questionId = (await realitio.askQuestion(0 /* template_id */ , "Is market with [questionID] valid?", omnGuild.address, 60*60*24*2 /* timeout, */ , latest /* opening_ts */ , 0 /* nonce */ )).receipt.logs[0].args.question_id;
+
+        // I.B.1.b
+        await realitio.submitAnswer(questionId, soliditySha3((true)), 0, {
+            value: 1
+        });
+        await realitio.submitAnswer(questionId, soliditySha3((false)), 0, {
+            value: 2
+        });
 
     });
 
